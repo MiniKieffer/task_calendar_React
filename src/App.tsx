@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-const CalenderPage = lazy(() => import('@/pages/calender.page'));
+const CalenderPage = lazy(() => import('@/pages/calendar'));
 
 function App() {
   return (
