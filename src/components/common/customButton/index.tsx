@@ -2,7 +2,7 @@ import React from 'react';
 import { StyledButton } from './styles';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'calenderHeaderWeekMonth' | 'secondary';
+  variant?: 'calenderHeaderWeekMonth' | 'calendarHeaderUpDown' | 'calendarDatePiker';
 }
 
 const CustomButton: React.FC<ButtonProps> = ({

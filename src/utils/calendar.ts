@@ -1,4 +1,6 @@
 export const Days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+export const Months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+export const MonthsFullName = ["January", "Febrary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export const getCurrentMonthFirstDayIndex = (currentDate : Date) => {
     const currentMonthFirstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
