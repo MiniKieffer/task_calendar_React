@@ -11,6 +11,7 @@ export const StyledButton = styled.button<{ variant?: 'calenderHeaderWeekMonth' 
 
   &:active {
     transform: scale(0.97);
+    background-color: gray;
   }
 
   ${(props) =>

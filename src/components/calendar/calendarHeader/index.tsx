@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useState } from 'react';
 import CustomButton from "@/components/common/customButton";
 import { CalendarHeaderContainer, CalendarHeaderSection } from "./styles";
-import { MonthsFullName } from "@/utils/calendar/utils";
+import { MonthsFullName } from "@/utils/calendar";
 
 interface calendarHeaderComponentProps {
-  currentDate: Date; 
+  displayDate: Date; 
   changeMonth: (data: string) => void;
+  weekMonthConversion: (data : string) => void;
 }
 
-const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ currentDate, changeMonth }) => {
+const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, changeMonth, weekMonthConversion }) => {
+  const [activeWeekMonthConversionButton, setActiveWeekMonthConversionButton] = useState<string>('month');
   
   return (
     <>
@@ -26,11 +28,11 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ currentDate, c
             </CustomButton>
           </CalendarHeaderSection>
           <CalendarHeaderSection variant="center">
-            <CustomButton variant="calendarDatePiker">{`${MonthsFullName[currentDate.getMonth()]} ${currentDate.getFullYear()}`}</CustomButton>
+            <CustomButton variant="calendarDatePiker">{`${MonthsFullName[displayDate.getMonth()]} ${displayDate.getFullYear()}`}</CustomButton>
           </CalendarHeaderSection>
           <CalendarHeaderSection variant="right">
-            <CustomButton>Week</CustomButton>
-            <CustomButton>Month</CustomButton>
+            <CustomButton onClick={() => weekMonthConversion('week')}>Week</CustomButton>
+            <CustomButton onClick={() => weekMonthConversion('month')}>Month</CustomButton>
           </CalendarHeaderSection>
       </CalendarHeaderContainer>
     </>
