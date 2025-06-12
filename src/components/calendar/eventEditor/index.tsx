@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   EditorPopup,
   EditorTitle,
@@ -6,7 +6,10 @@ import {
   Textarea,
   ButtonGroup,
   Button, 
-  Select
+  OptionContainer,
+  Dropdown,
+  OptionsList,
+  OptionLabel
 } from './styles';
 import { useAppDispatch } from '@/hooks/redux/useAppDispatch';
 import { EventData, EditorPosition } from '@/types/calendar';
@@ -20,11 +23,31 @@ type EventEditorProps = {
   editorPosition: EditorPosition;
 };
 
+const options = [
+  { value: 'meeting', label: 'Meeting' },
+  { value: 'party', label: 'Party' },
+  { value: 'traveling', label: 'Traveling' },
+  { value: 'dating', label: 'Dating' },
+  { value: 'hiking', label: 'Hiking' },
+  { value: 'task', label: 'Task' },
+];
+
 const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, editorPosition }) => {
   const dispatch = useAppDispatch();
   const [title, setTitle] = useState(initialData?.title || "");
   const [desc, setDesc] = useState(initialData?.desc || "");
-  const [style, setStyle] = useState(initialData?.event_style || "meeting");
+  const [style, setStyle] = useState(initialData?.event_style || []);
+  const [open, setOpen] = useState(false);
+
+  const toggleValue = (value: string) => {
+    setStyle(prev =>
+      prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+    );
+  };
+
+  useEffect(() => {
+      console.log(date);
+    },[date])
 
   const handleSave = () => {
     let eventData: EventData;
@@ -47,7 +70,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
     }
 
     if (initialData) {
-      dispatch(updateEvent({ original: initialData, updated: eventData }));
+      dispatch(updateEvent(eventData));
     } else {
       dispatch(addEvent(eventData));
     }
@@ -61,21 +84,41 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
         $left={editorPosition.x}
         $transformOrigin={editorPosition.transformOrigin}
     >
-      <EditorTitle>{initialData ? "Edit Event" : `New Event on ${new Date(date).toDateString()}`}</EditorTitle>
+      <EditorTitle>{initialData ? "Edit Event" : `New Event on ${date}`}</EditorTitle>
+      <div>
+        
+      </div>
       <form onSubmit={handleSave}>
         <Input
           placeholder="Event Title"
+          name="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
         />
-        <Select value={style} onChange={(e) => setStyle(e.target.value)} required>
-          <option value="meeting">Meeting</option>
-          <option value="party">Party</option>
-          <option value="task">Task</option>
-        </Select>
+        <OptionContainer>
+          <Dropdown onClick={() => setOpen(!open)}>
+            {style.length > 0 ? style.join(', ') : 'Select options'}
+          </Dropdown>
+          {open && (
+            <OptionsList>
+              {options.map((opt, id) => (
+                <OptionLabel key={id}>
+                  <input
+                    type="checkbox"
+                    name="style"
+                    checked={style.includes(opt.value)}
+                    onChange={() => toggleValue(opt.value)}
+                  />
+                  {opt.label}
+                </OptionLabel>
+              ))}
+            </OptionsList>
+          )}
+        </OptionContainer>
         <Textarea
           placeholder="Description"
+          name="description"
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
         />

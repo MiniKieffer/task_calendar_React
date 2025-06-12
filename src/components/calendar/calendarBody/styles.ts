@@ -11,13 +11,14 @@ export const CalendarGridContainer = styled.div<{ variant?: 'calendarDayBar' | '
   ${(props) =>
     props.variant === 'calendarDayBar' &&
     css`
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, 1fr);  
+      margin-bottom: 10px;
     `}
 
   ${(props) =>
     props.variant === 'calendarMonthBox' &&
     css`
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, calc((100vw - 50px) / 7));
       gap: 5px;
       height: 90%;
     `}
@@ -96,7 +97,7 @@ export const WeekGridCell = styled.div<{ variant?: 'dayBarCell' | 'timeBarCell' 
     `}
 `
 
-export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCell' |  'otherMonthCell' | 'todayCell'}>`
+export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCell' |  'otherMonthCell' | 'todayCell'; rownum?: 5 | 6}>`
   padding: 5px;
   font-weight: bold;
   ${(props) =>
@@ -106,7 +107,7 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
       justify-content: center; 
       align-items: center;
       color: grey;
-      padding-bottom: 20px;
+      padding-bottom: 10px;
       border-bottom: 5px solid #d9d9d9;
     `}
 
@@ -114,6 +115,8 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
     props.variant === 'thisMonthCell' &&
     css`
       background-color: #cccccc;
+      height: calc(72.75vh/${props.rownum});
+      overflow: auto;
     `}
 
   ${(props) =>
@@ -121,6 +124,8 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
     css`
       background-color: #d9d9d9;
       color: grey;
+      height: calc(72.75vh/${props.rownum});
+      overflow: auto;
     `}
 
  ${(props) =>
@@ -128,22 +133,44 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
     css`
       background-color: #cccccc;
       border-top: 2px solid tomato;
+      height: calc(72.75vh/${props.rownum});
+      overflow: auto;
     `}
 `;
 
-export const EventItem = styled.div<{ variant: string }>`
+export const EventWrapper = styled.div`
+  max-height: 143px;
+  margin: auto;
+`
+
+export const EventItem = styled.div<{ variant: string[] }>`
+  background-color: white;
   margin-top: 4px;
+  padding: 4px;
+  border-radius: 6px;
+  font-size: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+export const EventBoxes = styled.div`
+  display: flex;
+  flex-wrap: nowrap;
+  background-color: transparent;
+`
+
+export const EventBox = styled.div<{variant: string}>`
   background-color: ${({ variant }) =>
     variant === 'party'
       ? '#f39c12'
       : variant === 'meeting'
       ? '#2980b9'
       : '#7f8c8d'};
-  padding: 4px;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #fff;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-`;
+  width: 27px;
+  height: 5px;
+  border-radius: 5px;
+  margin: 2%;
+  line-height: 75px;
+  font-size: 30px;
+`

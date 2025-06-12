@@ -3,7 +3,10 @@ import {
          CalendarGridContainer, 
          CalendarBodyContainer, 
          MonthGridCell,
-         EventItem
+         EventItem,
+         EventBoxes,
+         EventBox,
+         EventWrapper
         } from "../styles";
 import useCalendarDates from "@/hooks/calendar/useCalendarDates";
 import { Days, Months } from "@/utils/calendar";
@@ -53,11 +56,13 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
     });
 
     setSelectedDate(date); // open editor with the clicked date
+    
   };
 
-  useEffect(() => {
-    console.log(events);
-  },[events])
+  // useEffect(() => {
+  //   console.log(events);
+  //   console.log(selectedDate);
+  // },[events, selectedDate])
 
   const formatDate = (date: Date) =>
     date.toISOString().split('T')[0]; // e.g., "2025-06-13"
@@ -92,6 +97,7 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
         return (
           <MonthGridCell 
               variant="otherMonthCell" 
+              rownum={(lastMonthDates.length + currentMonthDates.length + nextMonthDates.length) / 7 === 5 ? 5 : 6}
               key={`prev-${index}`} 
               onClick={(e) => handleCellClick(e, dateString)}
               onDragOver={(e) => e.preventDefault()} // Allow drop
@@ -154,6 +160,7 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
           <MonthGridCell 
             onClick={(e) => handleCellClick(e, dateString)} 
             variant={(date === new Date().getDate() && (displayDate.toLocaleDateString() === new Date().toLocaleDateString())) ? "todayCell" : "thisMonthCell"} 
+            rownum={(lastMonthDates.length + currentMonthDates.length + nextMonthDates.length) / 7 === 5 ? 5 : 6}
             key={index}
             onDragOver={(e) => e.preventDefault()} // Allow drop
             onDrop={(e) => {
@@ -167,7 +174,7 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
             {(date === 1 || index === currentMonthDates.length - 1) && `${Months[displayDate.getMonth()]} `}
             {date}
             {dayEvents.map((event, i) => (
-              <div
+              <EventWrapper
                 key={i}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
@@ -197,9 +204,14 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
                     setEditingEvent(event);          
                   }}
                 >
+                  <EventBoxes>
+                    {event.event_style.map((style, id) =>(
+                      <EventBox key={id} variant={style}></EventBox>
+                    ))}
+                  </EventBoxes>
                   {event.title}
                 </EventItem>
-              </div>
+              </EventWrapper>
             ))}
           </MonthGridCell>
         )})}
@@ -214,6 +226,7 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
           <MonthGridCell 
             onClick={(e) => handleCellClick(e, dateString)} 
             variant="otherMonthCell" 
+            rownum={(lastMonthDates.length + currentMonthDates.length + nextMonthDates.length) / 7 === 5 ? 5 : 6}
             key={`next-${index}`}
             onDragOver={(e) => e.preventDefault()} // Allow drop
             onDrop={(e) => {

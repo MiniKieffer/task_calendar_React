@@ -57,28 +57,68 @@ export const EditorTitle = styled.h3`
 `;
 
 export const Input = styled.input`
+  box-sizing: border-box;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 14px;
   width: 100%;
+  margin-bottom: 10px;
 `;
 
-export const Select = styled.select`
+export const OptionContainer = styled.div`
+  position: relative;
+  width: 100%;
+  margin-bottom: 10px;
+`;
+
+
+export const Dropdown = styled.div`
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 14px;
+  cursor: pointer;
+  background: #fff;
+`;
+
+export const OptionsList = styled.div`
+  position: absolute;
+  top: 100%;
   width: 100%;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 4px;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+`;
+
+export const OptionLabel = styled.label`
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f2f2f2;
+  }
+
+  input {
+    margin-right: 8px;
+  }
 `;
 
 export const Textarea = styled.textarea`
+  box-sizing: border-box;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 14px;
   width: 100%;
   resize: vertical;
+  margin-bottom: 10px;
 `;
 
 export const ButtonGroup = styled.div`

@@ -5,7 +5,7 @@ export type EventData = {
   id: string;
   date: string; // format: YYYY-MM-DD
   title: string;
-  event_style: string;
+  event_style: string[];
   desc: string;
 };
 
