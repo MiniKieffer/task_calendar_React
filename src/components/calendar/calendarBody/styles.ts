@@ -129,5 +129,21 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
       background-color: #cccccc;
       border-top: 2px solid tomato;
     `}
+`;
 
+export const EventItem = styled.div<{ variant: string }>`
+  margin-top: 4px;
+  background-color: ${({ variant }) =>
+    variant === 'party'
+      ? '#f39c12'
+      : variant === 'meeting'
+      ? '#2980b9'
+      : '#7f8c8d'};
+  padding: 4px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #fff;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
