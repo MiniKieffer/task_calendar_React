@@ -60,6 +60,14 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
 
 //     setDragInfo(null);
 //   };
+const handleDateClick = (date: Date) => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1; // 0-indexed
+  const day = date.getDate();
+
+  console.log("Clicked date:", { year, month, day });
+  // You can also store it in state, open a modal, etc.
+};
 
   return (
     <CalendarBodyContainer>
@@ -71,14 +79,24 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
         ))}
       </ CalendarGridContainer>
       <CalendarGridContainer variant="calendarMonthBox">
-        {lastMonthDates.map((date, index) => (
-          <MonthGridCell variant="otherMonthCell" key={index}>
+
+        {lastMonthDates.map((date, index) => {
+        const year = displayDate.getMonth() === 0 ? displayDate.getFullYear() - 1 : displayDate.getFullYear();
+        const month = displayDate.getMonth() === 0 ? 11 : displayDate.getMonth() - 1;
+        const fullDate = new Date(year, month, date);
+        return (
+          <MonthGridCell variant="otherMonthCell" key={`prev-${index}`} onClick={() => handleDateClick(fullDate)}>
             {index === lastMonthDates.length - 1 && `${Months[displayDate.getMonth() === 0 ? 11 : displayDate.getMonth() - 1]} `}
             {date}
           </MonthGridCell>
-        ))}
-        {currentMonthDates.map((date, index) => (
-          <MonthGridCell variant={(date === new Date().getDate() && (displayDate.toLocaleDateString() === new Date().toLocaleDateString())) ? "todayCell" : "thisMonthCell"} key={index}>
+        )})}
+
+        {currentMonthDates.map((date, index) => {
+          const year = displayDate.getFullYear();
+          const month = displayDate.getMonth();
+          const fullDate = new Date(year, month, date);
+          return (
+          <MonthGridCell onClick={() => handleDateClick(fullDate)} variant={(date === new Date().getDate() && (displayDate.toLocaleDateString() === new Date().toLocaleDateString())) ? "todayCell" : "thisMonthCell"} key={index}>
             {(date === 1 || index === currentMonthDates.length - 1) && `${Months[displayDate.getMonth()]} `}
             {date}
             {/* {events[date]?.map((event : any, index : number) => (
@@ -96,13 +114,17 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
               </div>
             ))} */}
           </MonthGridCell>
-        ))}
-        {nextMonthDates.map((date, index) => (
-          <MonthGridCell variant="otherMonthCell" key={index}>
+        )})}
+        {nextMonthDates.map((date, index) => {
+          const year = displayDate.getMonth() === 11 ? displayDate.getFullYear() + 1 : displayDate.getFullYear();
+          const month = displayDate.getMonth() === 11 ? 0 : displayDate.getMonth() + 1;
+          const fullDate = new Date(year, month, date);
+          return(
+          <MonthGridCell onClick={() => handleDateClick(fullDate)} variant="otherMonthCell" key={`next-${index}`}>
             {(date === 1) && `${Months[displayDate.getMonth() === 11 ? 0 : displayDate.getMonth() + 1]} `}
             {date}
           </MonthGridCell>
-        ))}
+        )})}
       </ CalendarGridContainer>
     </CalendarBodyContainer>
   );
