@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 
-export const StyledButton = styled.button<{ variant?: 'calenderHeaderWeekMonth' | 'calendarHeaderUpDown' | 'calendarDatePiker'}>`
+export const StyledButton = styled.button<{ variant?: 'calenderHeaderWeekMonth' | 'calendarHeaderUpDown' | 'calendarDatePiker'; activestate?: 'active' | 'inactive';}>`
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -18,7 +18,7 @@ export const StyledButton = styled.button<{ variant?: 'calenderHeaderWeekMonth' 
     props.variant === 'calenderHeaderWeekMonth' &&
     css`
       padding: 10px 10px;
-      background-color: #d9d9d9;
+      background-color:  ${props.activestate === 'active' ? 'gray' : '#d9d9d9'};;
       color: black;
       font-weight: bold;
       margin-left: 5px;

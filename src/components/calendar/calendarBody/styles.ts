@@ -1,8 +1,7 @@
 import styled, { css } from 'styled-components';
 
 export const CalendarBodyContainer = styled.div`
-  Height: calc(100vh - 80px);
-  overflow: auto;
+  height: calc(100vh - 80px);
 `
 
 export const CalendarGridContainer = styled.div<{ variant?: 'calendarDayBar' | 'calendarMonthBox' | 'calendarWeekBox' | 'calendarWeekDayBar' }>`
@@ -13,7 +12,6 @@ export const CalendarGridContainer = styled.div<{ variant?: 'calendarDayBar' | '
     props.variant === 'calendarDayBar' &&
     css`
       grid-template-columns: repeat(7, 1fr);
-      height: 6%;
     `}
 
   ${(props) =>
@@ -21,29 +19,29 @@ export const CalendarGridContainer = styled.div<{ variant?: 'calendarDayBar' | '
     css`
       grid-template-columns: repeat(7, 1fr);
       gap: 5px;
-      height: 94%;
+      height: 90%;
     `}
 
   ${(props) =>
     props.variant === 'calendarWeekDayBar' &&
     css`
       grid-template-columns: 0.5fr repeat(7, 1fr);
-      height: 6%;
     `}
     
   ${(props) =>
     props.variant === 'calendarWeekBox' &&
     css`
       grid-template-columns: 0.5fr repeat(7, 1fr);
-      gap: 5px;
-      height: 94%;
+      gap: 1px;
+      height: 90%;
+      overflow: auto;
     `}
 `;
 
-export const WeekGridCell = styled.div<{ variant?: 'dayBarCell' | 'timeBarCell' | 'weekCell' }>`
+export const WeekGridCell = styled.div<{ variant?: 'dayBarCell' | 'timeBarCell' | 'weekCell' | 'timeZoneCell' | 'dayBarCellToday'}>`
   padding: 5px;
   font-weight: bold;
-  min-height: 10px;
+  min-height: 30px;
 
   ${(props) =>
     props.variant === 'dayBarCell' &&
@@ -51,16 +49,44 @@ export const WeekGridCell = styled.div<{ variant?: 'dayBarCell' | 'timeBarCell' 
       display: flex;
       justify-content: center; 
       align-items: center;
+      text-align: center;
       color: grey;
-      padding-bottom: 20px;
       border-bottom: 5px solid #d9d9d9;
+    `}
+
+  ${(props) =>
+    props.variant === 'dayBarCellToday' &&
+    css`
+      display: flex;
+      justify-content: center; 
+      align-items: center;
+      text-align: center;
+      color: grey;
+      border-bottom: 5px solid #d9d9d9;
+      color: tomato;
+    `}
+
+  ${(props) =>
+    props.variant === 'timeZoneCell' &&
+    css`
+      border-bottom: 5px solid #d9d9d9;
+      font-weight: 300;
+      font-size: 12px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end; 
     `}
 
   ${(props) =>
     props.variant === 'timeBarCell' &&
     css`
       background-color: #d9d9d9;
-      grid-column-gap: 0px;
+       border-bottom: 1px solid black;
+       font-weight: 300;
+       font-size: 12px;
+       display: flex;
+       justify-content: flex-end;
+       align-items: flex-end; 
     `}
 
   ${(props) =>

@@ -1,52 +1,57 @@
 import React, { useState, useEffect } from "react";
 import CalendarHeader from '../../components/calendar/calendarHeader';
 import CalendarBody from '../../components/calendar/calendarBody';
+import { useAutoTodayUpdater } from "@/hooks/calendar/useAutoTodayUpdater";
 import { CalendarContainer } from './styles';
+import { Mode, Direction } from "@/types/calendar";
+
 
 const CalenderPage: React.FC = () => {
   const [displayDate, setDisplayDate] = useState<Date>(new Date());
-  const [monthChangeDirection, setMonthChangeDirection] = useState<string>('');
-  const [weekMonthConversion, setWeekMonthConversion] = useState<string>('month');
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const newDate = new Date().toLocaleDateString();
-      if (newDate !== displayDate.toLocaleDateString()) {
-        setDisplayDate(new Date());  // Update the state, which will trigger a re-render
-      }
-    }, 60000); // Check every minute (60000 ms)
-    
-    // Clean up the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  },[displayDate]);
+  const [dateChangeDirection, setDateChangeDirection] = useState<Direction | ''>('');
+  const [weekMonthConversion, setWeekMonthConversion] = useState<Mode>('month');
 
+  useAutoTodayUpdater(() => setDisplayDate(new Date()), displayDate);
   // Reset calendar date according to month change event
   useEffect(() => {
     const newDate = new Date(displayDate);
-    newDate.setDate(1);
-    if(monthChangeDirection === 'next') {
-      newDate.setMonth(displayDate.getMonth() + 1);
-      setDisplayDate(newDate);
-      setMonthChangeDirection('');
-    } else if(monthChangeDirection === 'previous') {
-      newDate.setMonth(displayDate.getMonth() - 1);
-      setDisplayDate(newDate);
-      setMonthChangeDirection('');
-    }
-    
-  }, [monthChangeDirection, displayDate])
+    const today = new Date();
 
-  const handleChangeMonth = (monthChangeDirection:string) => {
-    setMonthChangeDirection(monthChangeDirection);
+    if(dateChangeDirection === 'next' && weekMonthConversion === 'month') {
+      newDate.setDate(1);
+      newDate.setMonth(displayDate.getMonth() + 1);
+      if(newDate.getMonth() === today.getMonth()) newDate.setDate(today.getDate());
+      setDisplayDate(newDate);
+      setDateChangeDirection('');
+    } else if(dateChangeDirection === 'previous' && weekMonthConversion === 'month') {
+      newDate.setDate(1);
+      newDate.setMonth(displayDate.getMonth() - 1);
+      if(newDate.getMonth() === today.getMonth()) newDate.setDate(today.getDate());
+      setDisplayDate(newDate);
+      setDateChangeDirection('');
+    } else if(dateChangeDirection === 'next' && weekMonthConversion === 'week') {
+      newDate.setDate(displayDate.getDate() + 7);
+      setDisplayDate(newDate);
+      setDateChangeDirection('');
+    } else if(dateChangeDirection === 'previous' && weekMonthConversion === 'week') {
+      newDate.setDate(displayDate.getDate() - 7);
+      setDisplayDate(newDate);
+      setDateChangeDirection('');
+    }
+  }, [dateChangeDirection, displayDate, weekMonthConversion]);
+
+  const handleChangeDate = (dateChangeDirection:Direction) => {
+    setDateChangeDirection(dateChangeDirection);
   }
 
-  const handleWeekMonthConversion = (weekMonthConversion:string) => {
+  const handleWeekMonthConversion = (weekMonthConversion:Mode) => {
     setWeekMonthConversion(weekMonthConversion);
   }
 
   return (
     <>
       <CalendarContainer>
-        <CalendarHeader changeMonth={handleChangeMonth} displayDate={displayDate} weekMonthConversion={handleWeekMonthConversion} />
+        <CalendarHeader changeDate={handleChangeDate} displayDate={displayDate} weekMonthConversion={handleWeekMonthConversion} />
         <CalendarBody displayDate={displayDate} weekMonthConversion = {weekMonthConversion} />
       </CalendarContainer>
     </>
