@@ -1,46 +1,79 @@
 import React, { useState } from 'react';
 import {
-  EditorContainer,
+  EditorPopup,
   EditorTitle,
   Input,
   Textarea,
   ButtonGroup,
-  Button
+  Button, 
+  Select
 } from './styles';
+import { useAppDispatch } from '@/hooks/redux/useAppDispatch';
+import { EventData, EditorPosition } from '@/types/calendar';
+import { updateEvent, addEvent } from '@/redux/slices/calendarSlice';
+import { nanoid } from '@reduxjs/toolkit';
 
-type Props = {
-  selectedDate: Date;
+type EventEditorProps = {
+  date: string;
+  initialData?: EventData | null;
   onClose: () => void;
-  onSave: (data: { title: string; desc: string; event_style: string }) => void;
+  editorPosition: EditorPosition;
 };
 
-const EventEditor: React.FC<Props> = ({ selectedDate, onClose, onSave }) => {
-  const [title, setTitle] = useState('');
-  const [desc, setDesc] = useState('');
-  const [eventStyle, setEventStyle] = useState('meeting');
+const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, editorPosition }) => {
+  const dispatch = useAppDispatch();
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [desc, setDesc] = useState(initialData?.desc || "");
+  const [style, setStyle] = useState(initialData?.event_style || "meeting");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave({ title, desc, event_style: eventStyle });
+  const handleSave = () => {
+    let eventData: EventData;
+    if(initialData) {
+        eventData = {
+            ...initialData,
+            title,
+            desc,
+            event_style: style,
+            date,
+        }
+    } else {
+        eventData = {
+            id: nanoid(),
+            title,
+            desc,
+            event_style: style,
+            date,
+        }
+    }
+
+    if (initialData) {
+      dispatch(updateEvent({ original: initialData, updated: eventData }));
+    } else {
+      dispatch(addEvent(eventData));
+    }
+
     onClose();
   };
 
   return (
-    <EditorContainer>
-      <EditorTitle>New Event on {selectedDate.toDateString()}</EditorTitle>
-      <form onSubmit={handleSubmit}>
+    <EditorPopup 
+        $top={editorPosition.y}
+        $left={editorPosition.x}
+        $transformOrigin={editorPosition.transformOrigin}
+    >
+      <EditorTitle>{initialData ? "Edit Event" : `New Event on ${new Date(date).toDateString()}`}</EditorTitle>
+      <form onSubmit={handleSave}>
         <Input
           placeholder="Event Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
         />
-        <Input
-          placeholder="Style (e.g. party, meeting)"
-          value={eventStyle}
-          onChange={(e) => setEventStyle(e.target.value)}
-          required
-        />
+        <Select value={style} onChange={(e) => setStyle(e.target.value)} required>
+          <option value="meeting">Meeting</option>
+          <option value="party">Party</option>
+          <option value="task">Task</option>
+        </Select>
         <Textarea
           placeholder="Description"
           value={desc}
@@ -51,7 +84,7 @@ const EventEditor: React.FC<Props> = ({ selectedDate, onClose, onSave }) => {
           <Button type="button" variant="cancel" onClick={onClose}>Cancel</Button>
         </ButtonGroup>
       </form>
-    </EditorContainer>
+    </EditorPopup>
   );
 };
 

@@ -14,6 +14,7 @@ const calendarSlice = createSlice({
       if (!state.events[date]) state.events[date] = [];
       state.events[date].push(action.payload);
     },
+
     moveEvent: (
       state,
       action: PayloadAction<{ event: EventData; fromDate: string; toDate: string }>
@@ -30,6 +31,7 @@ const calendarSlice = createSlice({
       if (!state.events[toDate]) state.events[toDate] = [];
       state.events[toDate].push(updatedEvent);
     },
+
     reorderEventWithinDay: (
       state,
       action: PayloadAction<{ date: string; fromIndex: number; toIndex: number }>
@@ -41,8 +43,22 @@ const calendarSlice = createSlice({
       const [moved] = dayEvents.splice(fromIndex, 1);
       dayEvents.splice(toIndex, 0, moved);
     },
+
+    updateEvent: (
+      state,
+      action: PayloadAction<{ original: EventData; updated: EventData }>
+    ) => {
+      const { original, updated } = action.payload;
+      const events = state.events[original.date];
+      if (!events) return;
+    
+      const index = events.findIndex((e) => e.id === original.id);
+      if (index !== -1) {
+        events[index] = updated;
+      }
+    }
   },
 });
 
-export const { addEvent, moveEvent, reorderEventWithinDay } = calendarSlice.actions;
+export const { addEvent, moveEvent, reorderEventWithinDay, updateEvent } = calendarSlice.actions;
 export default calendarSlice.reducer;

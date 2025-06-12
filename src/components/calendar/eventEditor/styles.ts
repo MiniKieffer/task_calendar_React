@@ -1,60 +1,102 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
-export const EditorContainer = styled.div`
+// Styled Components
+
+export const EditorPopup = styled.div<{
+  $top: number;
+  $left: number;
+  $transformOrigin: string;
+}>`
   position: absolute;
-  top: 20%;
-  left: 30%;
-  background-color: white;
-  border: 1px solid #ddd;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  ${({ $top, $left, $transformOrigin }) => {
+    switch ($transformOrigin) {
+      case 'top left':
+        return `
+          top: ${$top}px;
+          left: ${$left}px;
+          transform: translate(0, 0);
+        `;
+      case 'top right':
+        return `
+          top: ${$top}px;
+          right: ${$left}px;
+          transform: translate(0, 0);
+        `;
+      case 'bottom left':
+        return `
+          bottom: ${$top}px;
+          left: ${$left}px;
+          transform: translate(0, 0);
+        `;
+      case 'bottom right':
+        return `
+          bottom: ${$top}px;
+          right: ${$left}px;
+          transform: translate(0, 0);
+        `;
+      default:
+        return '';
+    }
+  }}
+  
+  background: white;
   padding: 24px;
-  z-index: 100;
-  width: 300px;
   border-radius: 12px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1000;
 `;
 
 export const EditorTitle = styled.h3`
-  margin-bottom: 16px;
+  margin: 0;
   font-size: 18px;
-  color: #333;
+  font-weight: 600;
 `;
 
 export const Input = styled.input`
-  width: 100%;
-  padding: 8px 12px;
-  margin-bottom: 12px;
-  border: 1px solid #ccc;
+  padding: 10px;
   border-radius: 8px;
+  border: 1px solid #ccc;
   font-size: 14px;
+  width: 100%;
+`;
+
+export const Select = styled.select`
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  width: 100%;
 `;
 
 export const Textarea = styled.textarea`
-  width: 100%;
-  padding: 8px 12px;
-  height: 60px;
-  margin-bottom: 12px;
-  border: 1px solid #ccc;
+  padding: 10px;
   border-radius: 8px;
+  border: 1px solid #ccc;
   font-size: 14px;
+  width: 100%;
+  resize: vertical;
 `;
 
 export const ButtonGroup = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 8px;
 `;
 
 export const Button = styled.button<{ variant?: 'cancel' }>`
-  padding: 8px 16px;
+  padding: 10px 16px;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
   cursor: pointer;
-  background-color: ${({ variant }) =>
-    variant === 'cancel' ? '#eee' : '#007bff'};
+  background-color: ${({ variant }) => (variant === 'cancel' ? '#e0e0e0' : '#007bff')};
   color: ${({ variant }) => (variant === 'cancel' ? '#333' : '#fff')};
+  font-weight: 500;
 
   &:hover {
-    background-color: ${({ variant }) =>
-      variant === 'cancel' ? '#ddd' : '#0056b3'};
+    opacity: 0.9;
   }
 `;

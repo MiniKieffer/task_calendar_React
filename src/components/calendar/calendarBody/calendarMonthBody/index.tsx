@@ -9,8 +9,9 @@ import useCalendarDates from "@/hooks/calendar/useCalendarDates";
 import { Days, Months } from "@/utils/calendar";
 import { useAppDispatch } from "@/hooks/redux/useAppDispatch";
 import { useAppSelector } from "@/hooks/redux/useAppSelector";
-import { addEvent, moveEvent, reorderEventWithinDay } from "@/redux/slices/calendarSlice";
+import { moveEvent, reorderEventWithinDay } from "@/redux/slices/calendarSlice";
 import EventEditor from "../../eventEditor";
+import { EventData, EditorPosition } from "@/types/calendar";
 
 interface calendarMonthBodyComponentProps {
   displayDate: Date; 
@@ -18,31 +19,60 @@ interface calendarMonthBodyComponentProps {
 
 const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayDate }) => {
   const { currentMonthDates, lastMonthDates, nextMonthDates } = useCalendarDates(displayDate);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
   const dispatch = useAppDispatch();
   const events = useAppSelector(state => state.calendar.events);
+
+  const [editorPosition, setEditorPosition] = useState<EditorPosition | null>(null);
+
+  const handleCellClick = (e: React.MouseEvent, date: string) => {
+    let { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+
+    let transformOrigin: 'top left' | 'top right' | 'bottom left' | 'bottom right' = 'top left';
+
+    if (clientX > innerWidth / 2 && clientY < innerHeight / 2) {
+      transformOrigin = "top right"; // right top → editor to left bottom
+      clientX = innerWidth - clientX;
+    } else if (clientX <= innerWidth / 2 && clientY < innerHeight / 2) {
+      transformOrigin = "top left"; // left top → editor to right bottom
+    } else if (clientX <= innerWidth / 2 && clientY >= innerHeight / 2) {
+      transformOrigin = "bottom left"; // left bottom → editor to right top
+      clientY = innerHeight - clientY;
+    } else {
+      transformOrigin = "bottom right";
+      clientX = innerWidth - clientX; 
+      clientY = innerHeight - clientY;
+    }
+
+    setEditorPosition({
+      x: clientX,
+      y: clientY,
+      transformOrigin,
+    });
+
+    setSelectedDate(date); // open editor with the clicked date
+  };
 
   useEffect(() => {
     console.log(events);
   },[events])
 
-  const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
-  };
-  const handleSave = (data: { title: string; desc: string; event_style: string }) => {
-    const dateStr = selectedDate!.toISOString().split('T')[0];
-    dispatch(addEvent({ ...data, date: dateStr }));
-  };
   const formatDate = (date: Date) =>
     date.toISOString().split('T')[0]; // e.g., "2025-06-13"
 
   return (
     <CalendarBodyContainer>
-      {selectedDate && (
+      {selectedDate && editorPosition && (
         <EventEditor
-          selectedDate={selectedDate}
-          onClose={() => setSelectedDate(null)}
-          onSave={handleSave}
+          initialData={editingEvent}
+          date={selectedDate}
+          onClose={() => {
+            setSelectedDate(null);
+            setEditingEvent(null);
+          }}
+          editorPosition={editorPosition}
         />
       )}
       <CalendarGridContainer variant="calendarDayBar">
@@ -63,7 +93,7 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
           <MonthGridCell 
               variant="otherMonthCell" 
               key={`prev-${index}`} 
-              onClick={() => handleDateClick(fullDate)}
+              onClick={(e) => handleCellClick(e, dateString)}
               onDragOver={(e) => e.preventDefault()} // Allow drop
               onDrop={(e) => {
                 const data = e.dataTransfer.getData("text/plain");
@@ -102,6 +132,10 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
                       JSON.stringify({ event, fromDate: dateString, fromIndex: i })
                     );
                   }}
+                  onClick={(e) => {
+                    handleCellClick(e, dateString);       
+                    setEditingEvent(event);          
+                  }}
                 >
                   {event.title}
                 </EventItem>
@@ -118,7 +152,7 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
           const dayEvents = events[dateString] || [];
           return (
           <MonthGridCell 
-            onClick={() => handleDateClick(fullDate)} 
+            onClick={(e) => handleCellClick(e, dateString)} 
             variant={(date === new Date().getDate() && (displayDate.toLocaleDateString() === new Date().toLocaleDateString())) ? "todayCell" : "thisMonthCell"} 
             key={index}
             onDragOver={(e) => e.preventDefault()} // Allow drop
@@ -158,6 +192,10 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
                       JSON.stringify({ event, fromDate: dateString, fromIndex: i })
                     );
                   }}
+                  onClick={(e) => {
+                    handleCellClick(e, dateString);       
+                    setEditingEvent(event);          
+                  }}
                 >
                   {event.title}
                 </EventItem>
@@ -174,7 +212,7 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
           const dayEvents = events[dateString] || [];
           return(
           <MonthGridCell 
-            onClick={() => handleDateClick(fullDate)} 
+            onClick={(e) => handleCellClick(e, dateString)} 
             variant="otherMonthCell" 
             key={`next-${index}`}
             onDragOver={(e) => e.preventDefault()} // Allow drop
@@ -213,6 +251,10 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
                       "text/plain",
                       JSON.stringify({ event, fromDate: dateString, fromIndex: i })
                     );
+                  }}
+                  onClick={(e) => {
+                    handleCellClick(e, dateString);       
+                    setEditingEvent(event);          
                   }}
                 >
                   {event.title}
