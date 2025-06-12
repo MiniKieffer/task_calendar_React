@@ -38,6 +38,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
   const [desc, setDesc] = useState(initialData?.desc || "");
   const [style, setStyle] = useState(initialData?.event_style || []);
   const [open, setOpen] = useState(false);
+  const [localDate, setLocalDate] = useState<Date | null>(null);
 
   const toggleValue = (value: string) => {
     setStyle(prev =>
@@ -46,8 +47,9 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
   };
 
   useEffect(() => {
-      console.log("------------------>", new Date(date));
-      console.log("----------------------------->", date);
+      const [year, month, day] = date.split('-').map(Number);
+        const localDate = new Date(year, month - 1, day);
+        setLocalDate(localDate);
     },[date])
 
   const handleSave = () => {
@@ -85,7 +87,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
         $left={editorPosition.x}
         $transformOrigin={editorPosition.transformOrigin}
     >
-      <EditorTitle>{initialData ? "Edit Event" : `New Event on ${date}`}</EditorTitle>
+      <EditorTitle>{localDate?.toString()}</EditorTitle>
       <div>
         
       </div>

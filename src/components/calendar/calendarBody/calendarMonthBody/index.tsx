@@ -59,13 +59,16 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
     
   };
 
-  // useEffect(() => {
-  //   console.log(events);
-  //   console.log(selectedDate);
-  // },[events, selectedDate])
+  useEffect(() => {
+    // console.log(events);
+    // console.log(selectedDate);
+    // console.log(displayDate);
+    // console.log(new Date());
+    // console.log(selectedDate);
+  },[events, selectedDate])
 
   const formatDate = (date: Date) =>
-    date.toISOString().split('T')[0]; // e.g., "2025-06-13"
+    date.toISOString().split('T')[0]; 
 
   return (
     <CalendarBodyContainer>
