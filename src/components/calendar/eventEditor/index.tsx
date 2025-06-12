@@ -46,7 +46,8 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
   };
 
   useEffect(() => {
-      console.log(date);
+      console.log("------------------>", new Date(date));
+      console.log("----------------------------->", date);
     },[date])
 
   const handleSave = () => {
