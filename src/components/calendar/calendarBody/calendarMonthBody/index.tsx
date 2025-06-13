@@ -9,8 +9,9 @@ import { Days } from "@/utils/calendar";
 import { useAppSelector } from "@/hooks/redux/useAppSelector";
 import EventEditor from "../../eventEditor";
 import EventCell from "../../eventCell";
-import { EventData, EditorPosition } from "@/types/calendar";
-import { handleCellClick, calendarGridGenerateTool } from "@/utils/calendar";
+import { EventData, PopupPosition } from "@/types/calendar";
+import { cursorPointDetection, calendarGridGenerateTool } from "@/utils/calendar";
+import DailyEventListModal from "../../dailyEventListModal";
 
 interface CalendarMonthBodyProps {
   displayDate: Date;
@@ -19,8 +20,12 @@ interface CalendarMonthBodyProps {
 const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate }) => {
   const { currentMonthDates, lastMonthDates, nextMonthDates } = useCalendarDates(displayDate);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [listDate, setListDate] = useState<string | null>(null);
   const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
-  const [editorPosition, setEditorPosition] = useState<EditorPosition | null>(null);
+  const [listPopupOpenMode, setListPopupOpenMode] = useState<boolean>(false);
+  const [editorPopupOpenMode, setEditorPopupOpenMode] = useState<boolean>(false);
+  const [editorPosition, setEditorPosition] = useState<PopupPosition | null>(null);
+  const [listPosition, setListPosition] = useState<PopupPosition | null>(null);
   const events = useAppSelector((state) => state.calendar.events);
 
   const totalRows =
@@ -28,15 +33,31 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate }) =>
 
   return (
     <CalendarBodyContainer>
-      {selectedDate && editorPosition && (
+      {selectedDate && editorPosition && editorPopupOpenMode && (
         <EventEditor
           initialData={editingEvent}
           date={selectedDate}
           onClose={() => {
             setSelectedDate(null);
             setEditingEvent(null);
+            setEditorPopupOpenMode(false);
           }}
           editorPosition={editorPosition}
+        />
+      )}
+      {listDate && listPosition && listPopupOpenMode && (
+        <DailyEventListModal
+          handleCellClick = {(e) => {setEditorPosition(cursorPointDetection(e)); setSelectedDate(listDate);}}
+          onClose={() => {
+            setSelectedDate(null);
+            setEditingEvent(null);
+            setListPopupOpenMode(false);
+          }}
+          events = {events}
+          setEditingEvent = {setEditingEvent}
+          date={listDate}
+          listPosition={listPosition}
+          setEditorPopupOpenMode = {setEditorPopupOpenMode}
         />
       )}
       <CalendarGridContainer variant="calendarDayBar">
@@ -55,9 +76,12 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate }) =>
               variant = {variant}
               label = {label}
               rownum = {totalRows}
-              handleCellClick = {(e) => handleCellClick(e, dateString, setEditorPosition, setSelectedDate)}
+              handleCellClick = {(e) => {setEditorPosition(cursorPointDetection(e)); setSelectedDate(dateString); }}
               events = {events}
               setEditingEvent = {setEditingEvent}
+              setListPopupOpenMode = {setListPopupOpenMode}
+              setEditorPopupOpenMode = {setEditorPopupOpenMode}
+              handleListClick = {(e) => {setListPosition(cursorPointDetection(e)); setListDate(dateString); }}
               dateString = {dateString}
             />
           );

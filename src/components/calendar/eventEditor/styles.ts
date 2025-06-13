@@ -6,6 +6,7 @@ export const EditorPopup = styled.div<{
   $top: number;
   $left: number;
   $transformOrigin: string;
+  $varient: string;
 }>`
   position: absolute;
   ${({ $top, $left, $transformOrigin }) => {
@@ -47,7 +48,7 @@ export const EditorPopup = styled.div<{
   display: flex;
   flex-direction: column;
   gap: 16px;
-  z-index: 1000;
+  z-index: ${({ $varient }) => ($varient === 'editor' ? 1000 : 800)};
 `;
 
 export const EditorTitle = styled.h3`

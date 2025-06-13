@@ -1,4 +1,4 @@
-import { EditorPosition } from "@/types/calendar";
+import { PopupPosition } from "@/types/calendar";
 
 export const Days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const Months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -82,11 +82,11 @@ export const getCurrentWeekDates = (currentWeekFirstDate : Date) => {
     return(currentWeekDates);
 }
 
-export const handleCellClick = (e: React.MouseEvent, date: string, setEditorPosition: (editorPosition : EditorPosition) => void, setSelectedDate: (selectedDate: string) => void) => {
+export const cursorPointDetection = (e: React.MouseEvent) => {
     let { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
 
-    let transformOrigin: EditorPosition["transformOrigin"] = "top left";
+    let transformOrigin: PopupPosition["transformOrigin"] = "top left";
 
     if (clientX > innerWidth / 2 && clientY < innerHeight / 2) {
       transformOrigin = "top right";
@@ -99,9 +99,7 @@ export const handleCellClick = (e: React.MouseEvent, date: string, setEditorPosi
       clientX = innerWidth - clientX;
       clientY = innerHeight - clientY;
     }
-
-    setEditorPosition({ x: clientX, y: clientY, transformOrigin });
-    setSelectedDate(date);
+    return {x: clientX, y: clientY, transformOrigin}
 };
 
 export const calendarGridGenerateTool = (displayDate: Date, lastMonthDates: number[], currentMonthDates: number[], nextMonthDates: number[], date: number, index: number, allDates: number[] ) => {

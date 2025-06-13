@@ -9,6 +9,7 @@ export const EventWrapper = styled.div`
   font-size: 12px;
   padding: 6px;
   margin-top: 3px;
+  z-index:300;
 `
 
 export const EventItem = styled.div<{ variant: string[] }>`

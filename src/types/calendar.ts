@@ -13,7 +13,7 @@ export type CalendarState = {
   events: Record<string, EventData[]>;
 };
 
-export type EditorPosition = {
+export type PopupPosition = {
   x: number;
   y: number;
   transformOrigin: 'top left' | 'top right' | 'bottom left' | 'bottom right';

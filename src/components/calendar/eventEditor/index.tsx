@@ -12,7 +12,7 @@ import {
   OptionLabel
 } from './styles';
 import { useAppDispatch } from '@/hooks/redux/useAppDispatch';
-import { EventData, EditorPosition } from '@/types/calendar';
+import { EventData, PopupPosition } from '@/types/calendar';
 import { updateEvent, addEvent, deleteEvent } from '@/redux/slices/calendarSlice';
 import { nanoid } from '@reduxjs/toolkit';
 
@@ -20,7 +20,7 @@ type EventEditorProps = {
   date: string;
   initialData?: EventData | null;
   onClose: () => void;
-  editorPosition: EditorPosition;
+  editorPosition: PopupPosition;
 };
 
 const options = [
@@ -37,7 +37,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
   const [title, setTitle] = useState(initialData?.title || "");
   const [desc, setDesc] = useState(initialData?.desc || "");
   const [style, setStyle] = useState(initialData?.event_style || []);
-  const [open, setOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleValue = (value: string) => {
     setStyle(prev =>
@@ -79,6 +79,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
         $top={editorPosition.y}
         $left={editorPosition.x}
         $transformOrigin={editorPosition.transformOrigin}
+        $varient='editor'
     >
       <EditorTitle>{date.toString()}</EditorTitle>
       <div>
@@ -93,10 +94,10 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
           required
         />
         <OptionContainer>
-          <Dropdown onClick={() => setOpen(!open)}>
+          <Dropdown onClick={() => setDropdownOpen(!dropdownOpen)}>
             {style.length > 0 ? style.join(', ') : 'Select options'}
           </Dropdown>
-          {open && (
+          {dropdownOpen && (
             <OptionsList>
               {options.map((opt, id) => (
                 <OptionLabel key={id}>

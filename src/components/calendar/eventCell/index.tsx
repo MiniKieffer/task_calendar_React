@@ -9,22 +9,36 @@ interface EventCellProps {
     variant: "thisMonthCell" | "otherMonthCell" | "todayCell",
     label: string,
     rownum: 5 | 6,
-    handleCellClick: (e: React.MouseEvent, date: string) => void;
+    handleCellClick: (e: React.MouseEvent) => void;
     events: Record<string, EventData[]>,
     setEditingEvent: (event: EventData) => void,
+    setListPopupOpenMode: (listPopupOpenMode: boolean) => void,
+    setEditorPopupOpenMode: (editorPopupOpenMode: boolean) => void,
+    handleListClick: (e: React.MouseEvent) => void
     dateString: string
 }
 
-const EventCell: React.FC<EventCellProps> = ({variant, label, rownum, handleCellClick, events, setEditingEvent, dateString}) => {
+const EventCell: React.FC<EventCellProps> = ({
+                                                variant, 
+                                                label, 
+                                                rownum, 
+                                                handleCellClick, 
+                                                events, 
+                                                setEditingEvent, 
+                                                setListPopupOpenMode, 
+                                                setEditorPopupOpenMode, 
+                                                handleListClick, 
+                                                dateString
+                                            }) => {
     const dateEvents = events[dateString] || [];
     const dispatch = useAppDispatch();
 
     return (
       <MonthGridCell
         key={dateString}
-        onClick={(e) => handleCellClick(e, dateString)}
         variant={variant}
         rownum={rownum}
+        onClick={(e) => {handleCellClick(e); setEditorPopupOpenMode(true);} }
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           const data = JSON.parse(e.dataTransfer.getData("text/plain"));
@@ -34,20 +48,22 @@ const EventCell: React.FC<EventCellProps> = ({variant, label, rownum, handleCell
         }}
       >
         {label}
-        {dateEvents.slice(0, 2).map((event, i) => (
+        {dateEvents.slice(0, 2).map((event, index) => (
             <DraggableEventWrapper
-              key={i}
+              key={index}
               event={event}
-              index={i}
+              index={index}
               dateString={dateString}
               onClick={(event, e) => {
-                handleCellClick(e, dateString);
+                e.stopPropagation();
+                handleCellClick(e);
                 setEditingEvent(event);
+                setEditorPopupOpenMode(true);
               }}
             />
         ))}
         {dateEvents.length > 2 && (
-          <EventWrapper>
+          <EventWrapper onClick={(e) => {handleListClick(e); setListPopupOpenMode(true); e.stopPropagation();}}>
              +{dateEvents.length - 2} more
           </EventWrapper>
         )}
