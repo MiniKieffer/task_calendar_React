@@ -68,7 +68,7 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
   },[events, selectedDate])
 
   const formatDate = (date: Date) =>
-    date.toISOString().split('T')[0]; 
+    date.toLocaleDateString('en-CA'); 
 
   return (
     <CalendarBodyContainer>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   EditorPopup,
   EditorTitle,
@@ -38,19 +38,12 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
   const [desc, setDesc] = useState(initialData?.desc || "");
   const [style, setStyle] = useState(initialData?.event_style || []);
   const [open, setOpen] = useState(false);
-  const [localDate, setLocalDate] = useState<Date | null>(null);
 
   const toggleValue = (value: string) => {
     setStyle(prev =>
       prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
     );
   };
-
-  useEffect(() => {
-      const [year, month, day] = date.split('-').map(Number);
-        const localDate = new Date(year, month - 1, day);
-        setLocalDate(localDate);
-    },[date])
 
   const handleSave = () => {
     let eventData: EventData;
@@ -87,7 +80,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
         $left={editorPosition.x}
         $transformOrigin={editorPosition.transformOrigin}
     >
-      <EditorTitle>{localDate?.toString()}</EditorTitle>
+      <EditorTitle>{date.toString()}</EditorTitle>
       <div>
         
       </div>
