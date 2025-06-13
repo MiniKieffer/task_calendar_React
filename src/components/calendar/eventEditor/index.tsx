@@ -13,7 +13,7 @@ import {
 } from './styles';
 import { useAppDispatch } from '@/hooks/redux/useAppDispatch';
 import { EventData, EditorPosition } from '@/types/calendar';
-import { updateEvent, addEvent } from '@/redux/slices/calendarSlice';
+import { updateEvent, addEvent, deleteEvent } from '@/redux/slices/calendarSlice';
 import { nanoid } from '@reduxjs/toolkit';
 
 type EventEditorProps = {
@@ -119,6 +119,7 @@ const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, e
           onChange={(e) => setDesc(e.target.value)}
         />
         <ButtonGroup>
+          {initialData &&  <Button variant="delete" onClick={() => {dispatch(deleteEvent(initialData)); onClose();}}>Delete</Button>}
           <Button type="submit">Save</Button>
           <Button type="button" variant="cancel" onClick={onClose}>Cancel</Button>
         </ButtonGroup>

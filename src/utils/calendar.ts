@@ -1,3 +1,5 @@
+import { EditorPosition } from "@/types/calendar";
+
 export const Days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const Months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 export const MonthsFullName = ["January", "Febrary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -78,4 +80,72 @@ export const getCurrentWeekDates = (currentWeekFirstDate : Date) => {
     currentWeekDates.push(date.getDate());
   }
     return(currentWeekDates);
+}
+
+export const handleCellClick = (e: React.MouseEvent, date: string, setEditorPosition: (editorPosition : EditorPosition) => void, setSelectedDate: (selectedDate: string) => void) => {
+    let { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+
+    let transformOrigin: EditorPosition["transformOrigin"] = "top left";
+
+    if (clientX > innerWidth / 2 && clientY < innerHeight / 2) {
+      transformOrigin = "top right";
+      clientX = innerWidth - clientX;
+    } else if (clientX <= innerWidth / 2 && clientY >= innerHeight / 2) {
+      transformOrigin = "bottom left";
+      clientY = innerHeight - clientY;
+    } else if (clientX > innerWidth / 2 && clientY >= innerHeight / 2) {
+      transformOrigin = "bottom right";
+      clientX = innerWidth - clientX;
+      clientY = innerHeight - clientY;
+    }
+
+    setEditorPosition({ x: clientX, y: clientY, transformOrigin });
+    setSelectedDate(date);
+};
+
+export const calendarGridGenerateTool = (displayDate: Date, lastMonthDates: number[], currentMonthDates: number[], nextMonthDates: number[], date: number, index: number, allDates: number[] ) => {
+    const isLast = index < lastMonthDates.length;
+    const isNext = index >= lastMonthDates.length + currentMonthDates.length;
+    const currentIdx = isLast
+      ? index
+      : isNext
+      ? index - (lastMonthDates.length + currentMonthDates.length)
+      : index - lastMonthDates.length;
+    const year = isLast
+      ? displayDate.getMonth() === 0
+        ? displayDate.getFullYear() - 1
+        : displayDate.getFullYear()
+      : isNext
+      ? displayDate.getMonth() === 11
+        ? displayDate.getFullYear() + 1
+        : displayDate.getFullYear()
+      : displayDate.getFullYear();
+    const month = isLast
+      ? displayDate.getMonth() === 0
+        ? 11
+        : displayDate.getMonth() - 1
+      : isNext
+      ? displayDate.getMonth() === 11
+        ? 0
+        : displayDate.getMonth() + 1
+      : displayDate.getMonth();
+    const fullDate = new Date(year, month, date);
+    const formatDate = (date: Date) => date.toLocaleDateString("en-CA");
+    const dateString = formatDate(fullDate);
+    const labelPrefix =
+      date === 1 || index === allDates.length - 1
+        ? `${Months[month]} `
+        : "";
+    const variant: "otherMonthCell" | "todayCell" | "thisMonthCell" = isLast || isNext
+      ? "otherMonthCell"
+      : fullDate.toDateString() === new Date().toDateString()
+      ? "todayCell"
+      : "thisMonthCell";
+    return {
+      dateString,
+      variant,
+      label: `${labelPrefix}${date}`,
+      currentIdx,
+    };
 }

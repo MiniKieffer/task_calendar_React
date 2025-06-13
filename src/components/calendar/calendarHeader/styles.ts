@@ -16,6 +16,7 @@ export const CalendarHeaderSection = styled.div<{ variant?: 'center' | 'right' }
     css`
       display: flex;
       justify-content: center;
+      position: relative;
     `}
   ${(props) =>
    props.variant === 'right' &&

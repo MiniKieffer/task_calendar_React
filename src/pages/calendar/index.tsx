@@ -48,10 +48,14 @@ const CalenderPage: React.FC = () => {
     setWeekMonthConversion(weekMonthConversion);
   }
 
+  const handleDirectDateChange = (date: Date) => {
+    setDisplayDate(date);
+  }
+
   return (
     <>
       <CalendarContainer>
-        <CalendarHeader changeDate={handleChangeDate} displayDate={displayDate} weekMonthConversion={handleWeekMonthConversion} />
+        <CalendarHeader changeDate={handleChangeDate} directDateChange={handleDirectDateChange} displayDate={displayDate} weekMonthConversion={handleWeekMonthConversion} />
         <CalendarBody displayDate={displayDate} weekMonthConversion = {weekMonthConversion} />
       </CalendarContainer>
     </>

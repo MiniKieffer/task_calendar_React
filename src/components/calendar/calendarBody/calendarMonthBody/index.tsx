@@ -1,74 +1,30 @@
-import React, {useEffect, useState} from "react";
-import { 
-         CalendarGridContainer, 
-         CalendarBodyContainer, 
-         MonthGridCell,
-         EventItem,
-         EventBoxes,
-         EventBox,
-         EventWrapper
-        } from "../styles";
+import React, { useState } from "react";
+import {
+  CalendarGridContainer,
+  CalendarBodyContainer,
+  MonthGridCell
+} from "../styles";
 import useCalendarDates from "@/hooks/calendar/useCalendarDates";
-import { Days, Months } from "@/utils/calendar";
-import { useAppDispatch } from "@/hooks/redux/useAppDispatch";
+import { Days } from "@/utils/calendar";
 import { useAppSelector } from "@/hooks/redux/useAppSelector";
-import { moveEvent, reorderEventWithinDay } from "@/redux/slices/calendarSlice";
 import EventEditor from "../../eventEditor";
+import EventCell from "../../eventCell";
 import { EventData, EditorPosition } from "@/types/calendar";
+import { handleCellClick, calendarGridGenerateTool } from "@/utils/calendar";
 
-interface calendarMonthBodyComponentProps {
-  displayDate: Date; 
+interface CalendarMonthBodyProps {
+  displayDate: Date;
 }
 
-const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayDate }) => {
+const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate }) => {
   const { currentMonthDates, lastMonthDates, nextMonthDates } = useCalendarDates(displayDate);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
-  const dispatch = useAppDispatch();
-  const events = useAppSelector(state => state.calendar.events);
-
   const [editorPosition, setEditorPosition] = useState<EditorPosition | null>(null);
+  const events = useAppSelector((state) => state.calendar.events);
 
-  const handleCellClick = (e: React.MouseEvent, date: string) => {
-    let { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-
-    let transformOrigin: 'top left' | 'top right' | 'bottom left' | 'bottom right' = 'top left';
-
-    if (clientX > innerWidth / 2 && clientY < innerHeight / 2) {
-      transformOrigin = "top right"; // right top → editor to left bottom
-      clientX = innerWidth - clientX;
-    } else if (clientX <= innerWidth / 2 && clientY < innerHeight / 2) {
-      transformOrigin = "top left"; // left top → editor to right bottom
-    } else if (clientX <= innerWidth / 2 && clientY >= innerHeight / 2) {
-      transformOrigin = "bottom left"; // left bottom → editor to right top
-      clientY = innerHeight - clientY;
-    } else {
-      transformOrigin = "bottom right";
-      clientX = innerWidth - clientX; 
-      clientY = innerHeight - clientY;
-    }
-
-    setEditorPosition({
-      x: clientX,
-      y: clientY,
-      transformOrigin,
-    });
-
-    setSelectedDate(date); // open editor with the clicked date
-    
-  };
-
-  useEffect(() => {
-    // console.log(events);
-    // console.log(selectedDate);
-    // console.log(displayDate);
-    // console.log(new Date());
-    // console.log(selectedDate);
-  },[events, selectedDate])
-
-  const formatDate = (date: Date) =>
-    date.toLocaleDateString('en-CA'); 
+  const totalRows =
+    (lastMonthDates.length + currentMonthDates.length + nextMonthDates.length) / 7 === 5 ? 5 : 6;
 
   return (
     <CalendarBodyContainer>
@@ -89,199 +45,26 @@ const CalendarMonthBody: React.FC<calendarMonthBodyComponentProps> = ({ displayD
             {day}
           </MonthGridCell>
         ))}
-      </ CalendarGridContainer>
+      </CalendarGridContainer>
       <CalendarGridContainer variant="calendarMonthBox">
-        {lastMonthDates.map((date, index) => {
-        const year = displayDate.getMonth() === 0 ? displayDate.getFullYear() - 1 : displayDate.getFullYear();
-        const month = displayDate.getMonth() === 0 ? 11 : displayDate.getMonth() - 1;
-        const fullDate = new Date(year, month, date);
-        const dateString = formatDate(fullDate);
-        const dayEvents = events[dateString] || [];
-        return (
-          <MonthGridCell 
-              variant="otherMonthCell" 
-              rownum={(lastMonthDates.length + currentMonthDates.length + nextMonthDates.length) / 7 === 5 ? 5 : 6}
-              key={`prev-${index}`} 
-              onClick={(e) => handleCellClick(e, dateString)}
-              onDragOver={(e) => e.preventDefault()} // Allow drop
-              onDrop={(e) => {
-                const data = e.dataTransfer.getData("text/plain");
-                const { event, fromDate } = JSON.parse(data);
-                const toDate = formatDate(fullDate);
-
-                if (fromDate === toDate) return;
-                dispatch(moveEvent({ event, fromDate, toDate }));
-              }}
-          >
-            {index === lastMonthDates.length - 1 && `${Months[displayDate.getMonth() === 0 ? 11 : displayDate.getMonth() - 1]} `}
-            {date}
-            {dayEvents.map((event, i) => (
-              <div
-                key={i}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault(); 
-                  const data = JSON.parse(e.dataTransfer.getData("text/plain"));
-                  const { fromDate, fromIndex } = data;
-                  const toDate = dateString;
-                  const toIndex = i;
-                
-                  // Reorder within same date
-                  if (fromDate === toDate && fromIndex !== toIndex) {
-                    dispatch(reorderEventWithinDay({ date: toDate, fromIndex, toIndex }));
-                  }
-                }}
-              >
-                <EventItem
-                  variant={event.event_style}
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData(
-                      "text/plain",
-                      JSON.stringify({ event, fromDate: dateString, fromIndex: i })
-                    );
-                  }}
-                  onClick={(e) => {
-                    handleCellClick(e, dateString);       
-                    setEditingEvent(event);          
-                  }}
-                >
-                  {event.title}
-                </EventItem>
-              </div>
-            ))}
-              </MonthGridCell>
-        )})}
-
-        {currentMonthDates.map((date, index) => {
-          const year = displayDate.getFullYear();
-          const month = displayDate.getMonth();
-          const fullDate = new Date(year, month, date);
-          const dateString = formatDate(fullDate);
-          const dayEvents = events[dateString] || [];
+        {[...lastMonthDates, ...currentMonthDates, ...nextMonthDates].map((date, index, allDates) => {
+          const { dateString, variant, label, currentIdx } = calendarGridGenerateTool(displayDate, lastMonthDates, currentMonthDates, nextMonthDates, date, index, allDates);
           return (
-          <MonthGridCell 
-            onClick={(e) => handleCellClick(e, dateString)} 
-            variant={(date === new Date().getDate() && (displayDate.toLocaleDateString() === new Date().toLocaleDateString())) ? "todayCell" : "thisMonthCell"} 
-            rownum={(lastMonthDates.length + currentMonthDates.length + nextMonthDates.length) / 7 === 5 ? 5 : 6}
-            key={index}
-            onDragOver={(e) => e.preventDefault()} // Allow drop
-            onDrop={(e) => {
-              const data = e.dataTransfer.getData("text/plain");
-              const { event, fromDate } = JSON.parse(data);
-              const toDate = formatDate(fullDate);
-              if (fromDate === toDate) return;
-              dispatch(moveEvent({ event, fromDate, toDate }));
-            }}
-          >
-            {(date === 1 || index === currentMonthDates.length - 1) && `${Months[displayDate.getMonth()]} `}
-            {date}
-            {dayEvents.map((event, i) => (
-              <EventWrapper
-                key={i}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault(); 
-                  const data = JSON.parse(e.dataTransfer.getData("text/plain"));
-                  const { fromDate, fromIndex } = data;
-                  const toDate = dateString;
-                  const toIndex = i;
-                
-                  // Reorder within same date
-                  if (fromDate === toDate && fromIndex !== toIndex) {
-                    dispatch(reorderEventWithinDay({ date: toDate, fromIndex, toIndex }));
-                  }
-                }}
-              >
-                <EventItem
-                  variant={event.event_style}
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData(
-                      "text/plain",
-                      JSON.stringify({ event, fromDate: dateString, fromIndex: i })
-                    );
-                  }}
-                  onClick={(e) => {
-                    handleCellClick(e, dateString);       
-                    setEditingEvent(event);          
-                  }}
-                >
-                  <EventBoxes>
-                    {event.event_style.map((style, id) =>(
-                      <EventBox key={id} variant={style}></EventBox>
-                    ))}
-                  </EventBoxes>
-                  {event.title}
-                </EventItem>
-              </EventWrapper>
-            ))}
-          </MonthGridCell>
-        )})}
-
-        {nextMonthDates.map((date, index) => {
-          const year = displayDate.getMonth() === 11 ? displayDate.getFullYear() + 1 : displayDate.getFullYear();
-          const month = displayDate.getMonth() === 11 ? 0 : displayDate.getMonth() + 1;
-          const fullDate = new Date(year, month, date);
-          const dateString = formatDate(fullDate);
-          const dayEvents = events[dateString] || [];
-          return(
-          <MonthGridCell 
-            onClick={(e) => handleCellClick(e, dateString)} 
-            variant="otherMonthCell" 
-            rownum={(lastMonthDates.length + currentMonthDates.length + nextMonthDates.length) / 7 === 5 ? 5 : 6}
-            key={`next-${index}`}
-            onDragOver={(e) => e.preventDefault()} // Allow drop
-            onDrop={(e) => {
-              const data = e.dataTransfer.getData("text/plain");
-              const { event, fromDate } = JSON.parse(data);
-              const toDate = formatDate(fullDate);
-              if (fromDate === toDate) return;
-              dispatch(moveEvent({ event, fromDate, toDate }));
-            }}
-          >
-            {(date === 1) && `${Months[displayDate.getMonth() === 11 ? 0 : displayDate.getMonth() + 1]} `}
-            {date}
-            {dayEvents.map((event, i) => (
-              <div
-                key={i}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault(); 
-                  const data = JSON.parse(e.dataTransfer.getData("text/plain"));
-                  const { fromDate, fromIndex } = data;
-                  const toDate = dateString;
-                  const toIndex = i;
-                
-                  // Reorder within same date
-                  if (fromDate === toDate && fromIndex !== toIndex) {
-                    dispatch(reorderEventWithinDay({ date: toDate, fromIndex, toIndex }));
-                  }
-                }}
-              >
-                <EventItem
-                  variant={event.event_style}
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData(
-                      "text/plain",
-                      JSON.stringify({ event, fromDate: dateString, fromIndex: i })
-                    );
-                  }}
-                  onClick={(e) => {
-                    handleCellClick(e, dateString);       
-                    setEditingEvent(event);          
-                  }}
-                >
-                  {event.title}
-                </EventItem>
-              </div>
-          ))}
-          </MonthGridCell>
-        )})}
-      </ CalendarGridContainer>
+            <EventCell 
+              key = {currentIdx + dateString}
+              variant = {variant}
+              label = {label}
+              rownum = {totalRows}
+              handleCellClick = {(e) => handleCellClick(e, dateString, setEditorPosition, setSelectedDate)}
+              events = {events}
+              setEditingEvent = {setEditingEvent}
+              dateString = {dateString}
+            />
+          );
+        })}
+      </CalendarGridContainer>
     </CalendarBodyContainer>
   );
-}
+};
 
 export default CalendarMonthBody;

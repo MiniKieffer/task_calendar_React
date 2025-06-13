@@ -127,13 +127,13 @@ export const ButtonGroup = styled.div`
   gap: 8px;
 `;
 
-export const Button = styled.button<{ variant?: 'cancel' }>`
+export const Button = styled.button<{ variant?: 'cancel' | 'delete' }>`
   padding: 10px 16px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  background-color: ${({ variant }) => (variant === 'cancel' ? '#e0e0e0' : '#007bff')};
-  color: ${({ variant }) => (variant === 'cancel' ? '#333' : '#fff')};
+  background-color: ${({ variant }) => (variant === 'cancel' ? '#e0e0e0' : variant === 'delete'? 'red' : '#007bff')};
+  color: ${({ variant }) => (variant === 'cancel' ? '#333' : variant === 'delete'? 'white' : '#fff')};
   font-weight: 500;
 
   &:hover {

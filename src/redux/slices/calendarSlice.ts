@@ -41,8 +41,12 @@ const calendarSlice = createSlice({
         dayEvents[index] = action.payload;
       }
     },
+    deleteEvent: (state, action: PayloadAction<EventData>) => {
+      const { id, date } = action.payload;
+      state.events[date] = state.events[date].filter(event => event.id !== id);
+    }
   },
 });
 
-export const { addEvent, moveEvent, reorderEventWithinDay, updateEvent } = calendarSlice.actions;
+export const { addEvent, moveEvent, reorderEventWithinDay, updateEvent, deleteEvent } = calendarSlice.actions;
 export default calendarSlice.reducer;
