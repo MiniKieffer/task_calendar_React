@@ -11,14 +11,14 @@ interface DailyEventListModalProps {
     onClose: () => void;
     events: Record<string, EventData[]>;
     setEditingEvent: (event: EventData) => void;
-    date: string;
+    dateString: string;
     listPosition: PopupPosition;
     setEditorPopupOpenMode: (editorPopupOpenMode: boolean) => void,
     refProp: React.RefObject<HTMLDivElement | null>;
 }
 
-const DailyEventListModal: React.FC<DailyEventListModalProps> = ({handleCellClick, date, events, onClose, listPosition, setEditingEvent, setEditorPopupOpenMode, refProp }) => {
-        const dateEvents = events[date] || [];
+const DailyEventListModal: React.FC<DailyEventListModalProps> = ({handleCellClick, dateString, events, onClose, listPosition, setEditingEvent, setEditorPopupOpenMode, refProp }) => {
+        const dateEvents = events[dateString] || [];
         const dispatch = useAppDispatch();
 
     return (
@@ -28,15 +28,15 @@ const DailyEventListModal: React.FC<DailyEventListModalProps> = ({handleCellClic
                      $varient="list"
                      ref={refProp}
         >
-          <EditorTitle>Events on {date}</EditorTitle>
+          <EditorTitle>Events on {dateString}</EditorTitle>
           <DailyEventListWrapper
             onClick={(e) => {handleCellClick(e)}}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               const data = JSON.parse(e.dataTransfer.getData("text/plain"));
               const { event, fromDate } = data;
-              if (fromDate === date) return;
-              dispatch(moveEvent({ event, fromDate, toDate: date }));
+              if (fromDate === dateString) return;
+              dispatch(moveEvent({ event, fromDate, toDate: dateString }));
             }}
           >
             {dateEvents.map((event, index) => (
@@ -44,7 +44,7 @@ const DailyEventListModal: React.FC<DailyEventListModalProps> = ({handleCellClic
                     key={index}
                     event={event}
                     index={index}
-                    dateString={date}
+                    dateString={dateString}
                     onClick={(event, e) => {
                     e.stopPropagation();
                       handleCellClick(e);

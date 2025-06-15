@@ -16,9 +16,10 @@ import DailyEventListModal from "../../dailyEventListModal";
 
 interface CalendarMonthBodyProps {
   displayDate: Date;
+  directDateChange: (data: Date) => void;
 }
 
-const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate }) => {
+const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate, directDateChange }) => {
   const { currentMonthDates, lastMonthDates, nextMonthDates } = useCalendarDates(displayDate);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [listDate, setListDate] = useState<string | null>(null);
@@ -54,10 +55,9 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate }) =>
   return (
     <CalendarBodyContainer>
       {selectedDate && editorPosition && editorPopupOpenMode && (
-
         <EventEditor
           initialData={editingEvent}
-          date={selectedDate}
+          dateString={selectedDate}
           onClose={() => {
             setSelectedDate(null);
             setEditingEvent(null);
@@ -65,6 +65,8 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate }) =>
           }}
           editorPosition={editorPosition}
           ref={editorPopupRef}
+          directDateChange={directDateChange}
+          displayDate = {displayDate}
         />
       )}
       {listDate && listPosition && listPopupOpenMode && (
@@ -79,7 +81,7 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate }) =>
           }}
           events = {events}
           setEditingEvent = {setEditingEvent}
-          date={listDate}
+          dateString={listDate}
           listPosition={listPosition}
           setEditorPopupOpenMode = {setEditorPopupOpenMode}
           refProp={listPopupRef}
@@ -94,7 +96,7 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate }) =>
       </CalendarGridContainer>
       <CalendarGridContainer variant="calendarMonthBox">
         {[...lastMonthDates, ...currentMonthDates, ...nextMonthDates].map((date, index, allDates) => {
-          const { dateString, variant, label, cardNum, currentIdx } = calendarGridGenerateTool(displayDate, lastMonthDates, currentMonthDates, date, index, allDates, events);
+          const { dateString, variant, label, currentIdx } = calendarGridGenerateTool(displayDate, lastMonthDates, currentMonthDates, date, index, allDates);
           return (
             <EventCell 
               key = {currentIdx + dateString}
@@ -115,7 +117,7 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate }) =>
               setEditorPopupOpenMode = {setEditorPopupOpenMode}
               handleListClick = {(e) => { if(editorClosedRef.current || listClosedRef.current) return; setListPosition(cursorPointDetection(e)); setListDate(dateString); }}
               dateString = {dateString}
-              cardNum = {cardNum}
+              cardNum = {`${events?.[dateString]?.length || ""} ${(events?.[dateString]?.length || 0) === 1 ? "card" : (events?.[dateString]?.length || 0) === 0 ? "" : "cards"}`}
             />
           );
         })}

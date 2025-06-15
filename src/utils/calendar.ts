@@ -1,5 +1,4 @@
 import { PopupPosition } from "@/types/calendar";
-import { EventData } from "@/types/calendar";
 import { Holiday } from "@/types/calendar";
 
 export const Days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -582,7 +581,7 @@ export const cursorPointDetection = (e: React.MouseEvent) => {
     return {x: clientX, y: clientY, transformOrigin}
 };
 
-export const calendarGridGenerateTool = (displayDate: Date, lastMonthDates: number[], currentMonthDates: number[], date: number, index: number, allDates: number[], events: Record<string, EventData[]> ) => {
+export const calendarGridGenerateTool = (displayDate: Date, lastMonthDates: number[], currentMonthDates: number[], date: number, index: number, allDates: number[]) => {
     const isLast = index < lastMonthDates.length;
     const isNext = index >= lastMonthDates.length + currentMonthDates.length;
     const currentIdx = isLast
@@ -624,7 +623,6 @@ export const calendarGridGenerateTool = (displayDate: Date, lastMonthDates: numb
       dateString,
       variant,
       label: `${labelPrefix}${date} `,
-      cardNum: `${events?.[dateString]?.length || ""} ${(events?.[dateString]?.length || 0) === 1 ? "card" : (events?.[dateString]?.length || 0) === 0 ? "" : "cards"}`,
       currentIdx,
     };
 }

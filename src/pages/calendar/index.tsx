@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CalendarHeader from '../../components/calendar/calendarHeader';
 import CalendarBody from '../../components/calendar/calendarBody';
-import { useAutoTodayUpdater } from "@/hooks/calendar/useAutoTodayUpdater";
+// import { useAutoTodayUpdater } from "@/hooks/calendar/useAutoTodayUpdater";
 import { CalendarContainer } from './styles';
 import { Mode, Direction } from "@/types/calendar";
 import { useAppDispatch } from "@/hooks/redux/useAppDispatch";
@@ -15,7 +15,7 @@ const CalenderPage: React.FC = () => {
   const [countryCode, setCountryCode] = useState<string | undefined>('SE');
   const dispatch = useAppDispatch();
 
-  useAutoTodayUpdater(() => setDisplayDate(new Date()), displayDate);
+  // useAutoTodayUpdater(() => setDisplayDate(new Date()), displayDate);
   // Reset calendar date according to month change event
   useEffect(() => {
     const newDate = new Date(displayDate);
@@ -45,7 +45,7 @@ const CalenderPage: React.FC = () => {
   }, [dateChangeDirection, displayDate, weekMonthConversion]);
 
   useEffect(() => {
-    dispatch(fetchHolidays({ year: displayDate.getFullYear(), countryCode: countryCode }));
+    dispatch(fetchHolidays({ year: 2025, countryCode: countryCode }));
   },[countryCode, displayDate, dispatch]);
 
   const handleChangeDate = (dateChangeDirection:Direction) => {
@@ -70,7 +70,7 @@ const CalenderPage: React.FC = () => {
                 weekMonthConversion={handleWeekMonthConversion} 
                 getCountry = {(country : string) => {setCountryCode(getCountryCodeByName(country))}}
           />
-        <CalendarBody displayDate={displayDate} weekMonthConversion = {weekMonthConversion} />
+        <CalendarBody displayDate={displayDate} weekMonthConversion = {weekMonthConversion} directDateChange={handleDirectDateChange}  />
       </CalendarContainer>
     </>
   );

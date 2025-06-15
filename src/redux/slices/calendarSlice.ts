@@ -11,7 +11,8 @@ const calendarSlice = createSlice({
   initialState,
   reducers: {
     addEvent: (state, action: PayloadAction<EventData>) => {
-      const { date } = action.payload;
+      const { id, date } = action.payload;
+      console.log(id);
       if (!state.events[date]) state.events[date] = [];
       state.events[date].push(action.payload);
     },
@@ -33,14 +34,18 @@ const calendarSlice = createSlice({
       if (!state.events[toDate]) state.events[toDate] = [];
       state.events[toDate].push(movedEvent);
     },
-    updateEvent: (state, action: PayloadAction<EventData>) => {
-      const { id, date } = action.payload;
-      const dayEvents = state.events[date];
+    updateEvent: (state, action: PayloadAction<{ event: EventData; fromDate: string;}>) => {
+      const { event, fromDate } = action.payload;
+      const dayEvents = state.events[fromDate];
       if (!dayEvents) return;
-      const index = dayEvents.findIndex(e => e.id === id);
+      const index = dayEvents.findIndex(e => e.id === event.id);
       if (index !== -1) {
-        dayEvents[index] = action.payload;
+        dayEvents[index] = event;
       }
+      if(fromDate === event.date) return;
+      const [movedEvent] = dayEvents.splice(index, 1);
+      if (!state.events[event.date]) state.events[event.date] = [];
+      state.events[event.date].push(movedEvent);
     },
     deleteEvent: (state, action: PayloadAction<EventData>) => {
       const { id, date } = action.payload;

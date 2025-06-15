@@ -10,6 +10,7 @@ export const EventWrapper = styled.div`
   padding: 6px;
   margin-top: 3px;
   z-index:300;
+  text-overflow: ellipsis;
 `
 
 export const EventItem = styled.div<{ variant: string[] }>`

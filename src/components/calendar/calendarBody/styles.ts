@@ -4,7 +4,7 @@ export const CalendarBodyContainer = styled.div`
   height: calc(100vh - 80px);
 `
 
-export const CalendarGridContainer = styled.div<{ variant?: 'calendarDayBar' | 'calendarMonthBox' | 'calendarWeekBox' | 'calendarWeekDayBar' }>`
+export const CalendarGridContainer = styled.div<{ variant?: 'calendarDayBar' | 'calendarMonthBox' | 'calendarWeekBox' | 'calendarWeekDayBar' | 'datePiker' }>`
   display: grid;
   
 
@@ -37,6 +37,13 @@ export const CalendarGridContainer = styled.div<{ variant?: 'calendarDayBar' | '
       height: 90%;
       overflow: auto;
     `}
+  
+  ${(props) =>
+    props.variant === 'datePiker' &&
+    css`
+      grid-template-columns: repeat(7, 1fr);
+    `}
+  
 `;
 
 export const WeekGridCell = styled.div<{ variant?: 'dayBarCell' | 'timeBarCell' | 'weekCell' | 'timeZoneCell' | 'dayBarCellToday'}>`
@@ -97,7 +104,7 @@ export const WeekGridCell = styled.div<{ variant?: 'dayBarCell' | 'timeBarCell' 
     `}
 `
 
-export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCell' |  'otherMonthCell' | 'todayCell'; rownum?: 5 | 6}>`
+export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCell' |  'otherMonthCell' | 'todayCell' | 'thisMonthCellDatePicker' | 'otherMonthCellDatePicker' | 'todayCellDatePicker'; rownum?: 5 | 6}>`
   padding: 5px;
   font-weight: bold;
   ${(props) =>
@@ -116,7 +123,7 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
     css`
       background-color: #cccccc;
       height: calc(74vh/${props.rownum});
-       border-radius: 5px;
+      border-radius: 5px;
     `}
 
   ${(props) =>
@@ -134,7 +141,64 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
       background-color: #cccccc;
       border-top: 2px solid tomato;
       height: calc(74vh/${props.rownum});
-       border-radius: 5px;
+      border-radius: 5px;
+    `}
+
+  ${(props) =>
+    props.variant === 'thisMonthCellDatePicker' &&
+    css`
+      background-color: #cccccc;
+      padding: 1px;
+      font-weight: 3;
+      cursor: pointer;
+      font-size: 10px;
+      &:hover {
+        background-color: gray;
+      }
+
+      &:active {
+        transform: scale(0.97);
+        background-color: gray;
+      }
+    `}
+
+  ${(props) =>
+    props.variant === 'otherMonthCellDatePicker' &&
+    css`
+      background-color: #d9d9d9;
+      color: grey;
+      padding: 1px;
+      font-weight: 3;
+      cursor: pointer;
+      font-size: 10px;
+      &:hover {
+        background-color: gray;
+        color: white;
+      }
+      
+      &:active {
+        transform: scale(0.97);
+        background-color: gray;
+      }
+    `}
+
+ ${(props) =>
+    props.variant === 'todayCellDatePicker' &&
+    css`
+      background-color: #cccccc;
+      color: tomato;
+      padding: 1px;
+      font-weight: 3;
+      font-size: 10px;
+      cursor: pointer;
+      &:hover {
+        background-color: gray;
+      }
+      
+      &:active {
+        transform: scale(0.97);
+        background-color: gray;
+      }
     `}
 `;
 

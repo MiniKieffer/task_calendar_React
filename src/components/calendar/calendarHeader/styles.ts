@@ -49,7 +49,6 @@ export const SearchResultContainer = styled.div`
     max-height: 200px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
     font-size: 11px;
     text-align: center;
 `

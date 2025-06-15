@@ -1,36 +1,36 @@
 import styled from "styled-components";
 
-export const MonthWeekSelectorContainer = styled.div`
-    width:100%;
-    top: 100%;
+export const DatePickerContainer = styled.div`
+    width:50%;
+    top: 20%;
+    left: 25%;
     background: #fff;
     position: absolute;
-    border-radius: 8px;
     margin-top: 4px;
     z-index: 10;
     max-height: 200px;
     display: flex;
     flex-direction: column;
+    border: 1px solid black
 `
-export const SubSelector = styled.div`
+export const DatePickerSubSelector = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f8f8f8;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 2px 5px;
 `;
 
-export const ArrowButton = styled.button`
+export const DatePickerArrowButton = styled.button`
   background: transparent;
   border: none;
-  font-size: 18px;
+  font-size: 10px;
   cursor: pointer;
 `;
 
-export const Label = styled.div`
+export const DatePickerLabel = styled.div`
   font-weight: 500;
-  font-size: 16px;
+  font-size: 10px;
   min-width: 80px;
   text-align: center;
 `;

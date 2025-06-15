@@ -106,7 +106,7 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
               onChange={handleSearchChange}
               required
             />
-            {openSearchResult && 
+            {openSearchResult && searchQuery &&
               <SearchResultContainer onClick={() => {setOpenSearchResult(false); setSearchQuery('');}}>
                 {searchedEvents?.length === 0 ? "No Results" : searchedEvents.map((searchedEvent) => (
                   <SearchResultSubSelector key={searchedEvent.id} onClick={(e) => gotoSearchEvent(e ,searchedEvent.date)}>

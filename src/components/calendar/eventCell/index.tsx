@@ -5,6 +5,8 @@ import { MonthGridCell } from "../calendarBody/styles";
 import DraggableEventWrapper from "../draggableEventWrapper";
 import { EventWrapper } from "../draggableEventWrapper/styles";
 import { useAppSelector } from "@/hooks/redux/useAppSelector";
+import { findHolidayByDate } from "@/utils/calendar";
+import { HolidayEventWrapper } from "./styles";
 
 interface EventCellProps {
     variant: "thisMonthCell" | "otherMonthCell" | "todayCell",
@@ -52,6 +54,8 @@ const EventCell: React.FC<EventCellProps> = ({
         }}
       >
         {label} <span style={{fontWeight:'5', fontSize:'12px'}}>{cardNum}</span>
+        {findHolidayByDate(holidays, dateString)?<HolidayEventWrapper>{`Holiday: ${findHolidayByDate(holidays, dateString)?.localName}`}</HolidayEventWrapper> : null}
+        
         {dateEvents.slice(0, 2).map((event, index) => (
             <DraggableEventWrapper
               key={index}
