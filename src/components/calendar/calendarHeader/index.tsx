@@ -1,40 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import CustomButton from "@/components/common/customButton";
 import MonthYearSelector from '../monthYearSelector';
-import { CalendarHeaderContainer, CalendarHeaderSection } from "./styles";
+import { CalendarHeaderContainer, CalendarHeaderSection, SearchResultContainer, SearchResultSubSelector } from "./styles";
 import { MonthsFullName } from "@/utils/calendar";
 import { Direction, Mode } from "@/types/calendar";
+import { SearchInput } from './styles';
+import { useAppSelector } from "@/hooks/redux/useAppSelector";
+import { useAppDispatch } from '@/hooks/redux/useAppDispatch';
+import { searchEvent, clearSearch } from '@/redux/slices/calendarSlice';
+import { CountryContainer, CountryDropdown } from './styles';
+import { OptionsList, OptionLabel } from '../eventEditor/styles';
+import { countries } from '@/utils/calendar';
 
 interface calendarHeaderComponentProps {
   displayDate: Date; 
   changeDate: (data: Direction) => void;
   weekMonthConversion: (data : Mode) => void;
   directDateChange: (data: Date) => void;
+  getCountry : (country : string) => void
 }
 
-const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, changeDate, weekMonthConversion, directDateChange }) => {
+const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, changeDate, weekMonthConversion, directDateChange, getCountry }) => {
   const [activeWeekMonthConversion, setActiveWeekMonthConversion] = useState<'week' | 'month'>('month');
-  const [open, setOpen] = useState(false);
+  const [openMonthYearSelector, setOpenMonthYearSelector] = useState(false);
+  const [openSearchResult, setOpenSearchResult] = useState(false);
   const [year, setYear] = useState(displayDate.getFullYear());
   const [month, setMonth] = useState(displayDate.getMonth());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [country, setCountry] = useState<string>('Sweden');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const searchedEvents = useAppSelector((state) => state.calendar.searchedEvents);
+
   const handleActiveWeekMonthConversion = (weekMonthState: 'week' | 'month') => {
   setActiveWeekMonthConversion(weekMonthState);
   weekMonthConversion(weekMonthState); 
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    dispatch(searchEvent({searchQuery}));
+    setOpenSearchResult(true);
+  };
+
+  const gotoSearchEvent = ( e : React.MouseEvent, searchDate : string ) => {
+    e.stopPropagation();
+    directDateChange(new Date(searchDate));
+    setSearchQuery("");
+    setOpenSearchResult(false);
+    dispatch(clearSearch());
+  }
+
   useEffect(() => {
-    if (!open) {
-      const newDate = new Date(); // clone to avoid mutation
+    if (!openMonthYearSelector) {
+      const newDate = new Date();
       newDate.setFullYear(year);
       newDate.setMonth(month);
       directDateChange(newDate);
     }
-  },[open])
+  },[openMonthYearSelector]);
 
   useEffect(() => {
     setYear(displayDate.getFullYear());
     setMonth(displayDate.getMonth());
-  },[displayDate])
+  },[displayDate]);
 
   return (
     <>
@@ -53,10 +82,10 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
             <CustomButton onClick={() => directDateChange(new Date())}>Today</CustomButton>
           </CalendarHeaderSection>
           <CalendarHeaderSection variant="center">
-            <CustomButton variant="calendarDatePiker" onClick={() => setOpen(!open)}>
+            <CustomButton variant="calendarDatePiker" onClick={() => setOpenMonthYearSelector(!openMonthYearSelector)}>
               {`${MonthsFullName[month]} ${year}`}
             </CustomButton>
-            {open && 
+            {openMonthYearSelector && 
               <MonthYearSelector
                 year={year}
                 month={month}
@@ -69,6 +98,44 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
             }
           </CalendarHeaderSection>
           <CalendarHeaderSection variant="right">
+            <SearchInput
+              type="text"
+              placeholder="Search events..."
+              name="title"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              required
+            />
+            {openSearchResult && 
+              <SearchResultContainer onClick={() => {setOpenSearchResult(false); setSearchQuery('');}}>
+                {searchedEvents?.length === 0 ? "No Results" : searchedEvents.map((searchedEvent) => (
+                  <SearchResultSubSelector key={searchedEvent.id} onClick={(e) => gotoSearchEvent(e ,searchedEvent.date)}>
+                    {`${searchedEvent.date}: ${searchedEvent.title}`}
+                  </SearchResultSubSelector>
+                ))}
+              </SearchResultContainer>
+            }
+            <CountryContainer>
+              <CountryDropdown onClick={() => setDropdownOpen(!dropdownOpen)}>
+                {country}
+              </CountryDropdown >
+              {dropdownOpen && (
+                <OptionsList>
+                  {countries.map((country, id) => (
+                    <OptionLabel
+                      key={id}
+                      onClick={() => {
+                        setCountry(country.name); 
+                        getCountry(country.name);
+                        setDropdownOpen(false); 
+                      }}
+                    >
+                      {country.name}
+                    </OptionLabel>
+                  ))}
+                </OptionsList>
+              )}
+            </CountryContainer>
             <CustomButton onClick={() => handleActiveWeekMonthConversion('week')} activestate={activeWeekMonthConversion === 'week' ? 'active' : 'inactive'}>Week</CustomButton>
             <CustomButton onClick={() => handleActiveWeekMonthConversion('month')} activestate={activeWeekMonthConversion === 'month' ? 'active' : 'inactive'}>Month</CustomButton>
           </CalendarHeaderSection>

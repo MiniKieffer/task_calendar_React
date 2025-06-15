@@ -116,6 +116,7 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
     css`
       background-color: #cccccc;
       height: calc(74vh/${props.rownum});
+       border-radius: 5px;
     `}
 
   ${(props) =>
@@ -124,6 +125,7 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
       background-color: #d9d9d9;
       color: grey;
       height: calc(74vh/${props.rownum});
+       border-radius: 5px;
     `}
 
  ${(props) =>
@@ -132,6 +134,7 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
       background-color: #cccccc;
       border-top: 2px solid tomato;
       height: calc(74vh/${props.rownum});
+       border-radius: 5px;
     `}
 `;
 

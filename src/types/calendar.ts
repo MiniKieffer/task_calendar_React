@@ -11,10 +11,30 @@ export type EventData = {
 
 export type CalendarState = {
   events: Record<string, EventData[]>;
+  searchedEvents: EventData[];
 };
 
 export type PopupPosition = {
   x: number;
   y: number;
   transformOrigin: 'top left' | 'top right' | 'bottom left' | 'bottom right';
+};
+
+export type Holiday = {
+  date: string; 
+  localName: string;
+  name: string;
+  countryCode: string;
+  fixed: boolean;
+  global: boolean;
+  counties: string[] | null;
+  launchYear: number | null;
+  type: string;
+};
+
+export type HolidayState = {
+  allHolidays: Holiday[];
+  filteredHolidays: Holiday[];
+  loading: boolean;
+  error: string | null;
 };

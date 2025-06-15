@@ -4,12 +4,16 @@ import CalendarBody from '../../components/calendar/calendarBody';
 import { useAutoTodayUpdater } from "@/hooks/calendar/useAutoTodayUpdater";
 import { CalendarContainer } from './styles';
 import { Mode, Direction } from "@/types/calendar";
-
+import { useAppDispatch } from "@/hooks/redux/useAppDispatch";
+import { fetchHolidays } from "@/redux/slices/holidaySlice";
+import { getCountryCodeByName } from "@/utils/calendar";
 
 const CalenderPage: React.FC = () => {
   const [displayDate, setDisplayDate] = useState<Date>(new Date());
   const [dateChangeDirection, setDateChangeDirection] = useState<Direction | ''>('');
   const [weekMonthConversion, setWeekMonthConversion] = useState<Mode>('month');
+  const [countryCode, setCountryCode] = useState<string | undefined>('SE');
+  const dispatch = useAppDispatch();
 
   useAutoTodayUpdater(() => setDisplayDate(new Date()), displayDate);
   // Reset calendar date according to month change event
@@ -40,6 +44,10 @@ const CalenderPage: React.FC = () => {
     }
   }, [dateChangeDirection, displayDate, weekMonthConversion]);
 
+  useEffect(() => {
+    dispatch(fetchHolidays({ year: displayDate.getFullYear(), countryCode: countryCode }));
+  },[countryCode, displayDate, dispatch]);
+
   const handleChangeDate = (dateChangeDirection:Direction) => {
     setDateChangeDirection(dateChangeDirection);
   }
@@ -55,7 +63,13 @@ const CalenderPage: React.FC = () => {
   return (
     <>
       <CalendarContainer>
-        <CalendarHeader changeDate={handleChangeDate} directDateChange={handleDirectDateChange} displayDate={displayDate} weekMonthConversion={handleWeekMonthConversion} />
+        <CalendarHeader 
+                changeDate={handleChangeDate} 
+                directDateChange={handleDirectDateChange} 
+                displayDate={displayDate} 
+                weekMonthConversion={handleWeekMonthConversion} 
+                getCountry = {(country : string) => {setCountryCode(getCountryCodeByName(country))}}
+          />
         <CalendarBody displayDate={displayDate} weekMonthConversion = {weekMonthConversion} />
       </CalendarContainer>
     </>

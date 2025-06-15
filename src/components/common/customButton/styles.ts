@@ -22,6 +22,7 @@ export const StyledButton = styled.button<{ variant?: 'calenderHeaderWeekMonth' 
       color: black;
       font-weight: bold;
       margin-left: 5px;
+      font-size:70%;
     `}
 
   ${(props) =>
@@ -41,5 +42,6 @@ export const StyledButton = styled.button<{ variant?: 'calenderHeaderWeekMonth' 
       font-size: 1.2rem;
       padding: 10px 12px;
       font-weight: bold;
+      font-size:135%;
     `}
 `;

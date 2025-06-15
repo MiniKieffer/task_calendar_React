@@ -14,16 +14,19 @@ interface DailyEventListModalProps {
     date: string;
     listPosition: PopupPosition;
     setEditorPopupOpenMode: (editorPopupOpenMode: boolean) => void,
+    refProp: React.RefObject<HTMLDivElement | null>;
 }
 
-const DailyEventListModal: React.FC<DailyEventListModalProps> = ({handleCellClick, date, events, onClose, listPosition, setEditingEvent, setEditorPopupOpenMode }) => {
+const DailyEventListModal: React.FC<DailyEventListModalProps> = ({handleCellClick, date, events, onClose, listPosition, setEditingEvent, setEditorPopupOpenMode, refProp }) => {
         const dateEvents = events[date] || [];
         const dispatch = useAppDispatch();
+
     return (
         <EditorPopup $top={listPosition.y}
                      $left={listPosition.x}
                      $transformOrigin={listPosition.transformOrigin}
                      $varient="list"
+                     ref={refProp}
         >
           <EditorTitle>Events on {date}</EditorTitle>
           <DailyEventListWrapper

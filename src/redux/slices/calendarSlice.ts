@@ -3,6 +3,7 @@ import { EventData, CalendarState } from '@/types/calendar';
 
 const initialState: CalendarState = {
   events: {},
+  searchedEvents: []
 };
 
 const calendarSlice = createSlice({
@@ -44,9 +45,33 @@ const calendarSlice = createSlice({
     deleteEvent: (state, action: PayloadAction<EventData>) => {
       const { id, date } = action.payload;
       state.events[date] = state.events[date].filter(event => event.id !== id);
+    },
+    searchEvent: (state, action: PayloadAction<{searchQuery: string}>) => {
+      const {searchQuery} = action.payload;
+      const keyWords =  searchQuery.toLowerCase().split(' ').filter(keyWord => keyWord.trim() !== '');
+      if (keyWords.length === 0) return;
+
+      const matched = Object.values(state.events)
+        .flat()
+        .filter(event => {
+          const title = event.title.toLowerCase();
+          const desc = event.desc.toLowerCase();
+          const styles = event.event_style.map(style => style.toLowerCase());
+        
+          return keyWords.some(keyWord =>
+            title.includes(keyWord) ||
+            desc.includes(keyWord) ||
+            styles.some(style => style.includes(keyWord))
+          );
+        });
+
+      state.searchedEvents = matched;
+    },
+    clearSearch: (state) => {
+      state.searchedEvents = [];
     }
   },
 });
 
-export const { addEvent, moveEvent, reorderEventWithinDay, updateEvent, deleteEvent } = calendarSlice.actions;
+export const { addEvent, moveEvent, reorderEventWithinDay, updateEvent, deleteEvent, searchEvent, clearSearch } = calendarSlice.actions;
 export default calendarSlice.reducer;

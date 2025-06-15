@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import {
   EditorPopup,
   EditorTitle,
@@ -21,6 +21,7 @@ type EventEditorProps = {
   initialData?: EventData | null;
   onClose: () => void;
   editorPosition: PopupPosition;
+  refProp: React.RefObject<HTMLDivElement | null>;
 };
 
 const options = [
@@ -32,101 +33,109 @@ const options = [
   { value: 'task', label: 'Task' },
 ];
 
-const EventEditor: React.FC<EventEditorProps> = ({ date, initialData, onClose, editorPosition }) => {
-  const dispatch = useAppDispatch();
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [desc, setDesc] = useState(initialData?.desc || "");
-  const [style, setStyle] = useState(initialData?.event_style || []);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+const EventEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refProp'>>(
+  ({ date, initialData, onClose, editorPosition }, ref) => {
+    const dispatch = useAppDispatch();
+    const [title, setTitle] = useState(initialData?.title || "");
+    const [desc, setDesc] = useState(initialData?.desc || "");
+    const [style, setStyle] = useState(initialData?.event_style || []);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const toggleValue = (value: string) => {
-    setStyle(prev =>
-      prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
-    );
-  };
+    const toggleValue = (value: string) => {
+      setStyle(prev =>
+        prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+      );
+    };
 
-  const handleSave = () => {
-    let eventData: EventData;
-    if(initialData) {
+    const handleSave = (e: React.FormEvent) => {
+      e.preventDefault(); // prevent form submission reload
+      let eventData: EventData;
+      if (initialData) {
         eventData = {
-            ...initialData,
-            title,
-            desc,
-            event_style: style,
-            date,
-        }
-    } else {
+          ...initialData,
+          title,
+          desc,
+          event_style: style,
+          date,
+        };
+        dispatch(updateEvent(eventData));
+      } else {
         eventData = {
-            id: nanoid(),
-            title,
-            desc,
-            event_style: style,
-            date,
-        }
-    }
+          id: nanoid(),
+          title,
+          desc,
+          event_style: style,
+          date,
+        };
+        dispatch(addEvent(eventData));
+      }
+      onClose();
+    };
 
-    if (initialData) {
-      dispatch(updateEvent(eventData));
-    } else {
-      dispatch(addEvent(eventData));
-    }
-
-    onClose();
-  };
-
-  return (
-    <EditorPopup 
+    return (
+      <EditorPopup
         $top={editorPosition.y}
         $left={editorPosition.x}
         $transformOrigin={editorPosition.transformOrigin}
-        $varient='editor'
-    >
-      <EditorTitle>{date.toString()}</EditorTitle>
-      <div>
-        
-      </div>
-      <form onSubmit={handleSave}>
-        <Input
-          placeholder="Event Title"
-          name="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <OptionContainer>
-          <Dropdown onClick={() => setDropdownOpen(!dropdownOpen)}>
-            {style.length > 0 ? style.join(', ') : 'Select options'}
-          </Dropdown>
-          {dropdownOpen && (
-            <OptionsList>
-              {options.map((opt, id) => (
-                <OptionLabel key={id}>
-                  <input
-                    type="checkbox"
-                    name="style"
-                    checked={style.includes(opt.value)}
-                    onChange={() => toggleValue(opt.value)}
-                  />
-                  {opt.label}
-                </OptionLabel>
-              ))}
-            </OptionsList>
-          )}
-        </OptionContainer>
-        <Textarea
-          placeholder="Description"
-          name="description"
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-        />
-        <ButtonGroup>
-          {initialData &&  <Button variant="delete" onClick={() => {dispatch(deleteEvent(initialData)); onClose();}}>Delete</Button>}
-          <Button type="submit">Save</Button>
-          <Button type="button" variant="cancel" onClick={onClose}>Cancel</Button>
-        </ButtonGroup>
-      </form>
-    </EditorPopup>
-  );
-};
+        $varient="editor"
+        ref={ref} 
+      >
+        <EditorTitle>{date.toString()}</EditorTitle>
+        <form onSubmit={handleSave}>
+          <Input
+            placeholder="Event Title"
+            name="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+          <OptionContainer>
+            <Dropdown onClick={() => setDropdownOpen(!dropdownOpen)}>
+              {style.length > 0 ? style.join(", ") : "Select options"}
+            </Dropdown>
+            {dropdownOpen && (
+              <OptionsList>
+                {options.map((opt, id) => (
+                  <OptionLabel key={id}>
+                    <input
+                      type="checkbox"
+                      name="style"
+                      checked={style.includes(opt.value)}
+                      onChange={() => toggleValue(opt.value)}
+                    />
+                    {opt.label}
+                  </OptionLabel>
+                ))}
+              </OptionsList>
+            )}
+          </OptionContainer>
+          <Textarea
+            placeholder="Description"
+            name="description"
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+          />
+          <ButtonGroup>
+            {initialData && (
+              <Button
+                variant="delete"
+                onClick={() => {
+                  dispatch(deleteEvent(initialData));
+                  onClose();
+                }}
+              >
+                Delete
+              </Button>
+            )}
+            <Button type="submit">Save</Button>
+            <Button type="button" variant="cancel" onClick={onClose}>
+              Cancel
+            </Button>
+          </ButtonGroup>
+        </form>
+      </EditorPopup>
+    );
+  }
+);
 
 export default EventEditor;

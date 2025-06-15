@@ -4,18 +4,20 @@ import { moveEvent } from "@/redux/slices/calendarSlice";
 import { MonthGridCell } from "../calendarBody/styles";
 import DraggableEventWrapper from "../draggableEventWrapper";
 import { EventWrapper } from "../draggableEventWrapper/styles";
+import { useAppSelector } from "@/hooks/redux/useAppSelector";
 
 interface EventCellProps {
     variant: "thisMonthCell" | "otherMonthCell" | "todayCell",
     label: string,
     rownum: 5 | 6,
-    handleCellClick: (e: React.MouseEvent) => void;
+    handleCellClick: (e: React.MouseEvent) => void,
     events: Record<string, EventData[]>,
     setEditingEvent: (event: EventData) => void,
     setListPopupOpenMode: (listPopupOpenMode: boolean) => void,
     setEditorPopupOpenMode: (editorPopupOpenMode: boolean) => void,
-    handleListClick: (e: React.MouseEvent) => void
-    dateString: string
+    handleListClick: (e: React.MouseEvent) => void,
+    dateString: string,
+    cardNum: string
 }
 
 const EventCell: React.FC<EventCellProps> = ({
@@ -28,10 +30,12 @@ const EventCell: React.FC<EventCellProps> = ({
                                                 setListPopupOpenMode, 
                                                 setEditorPopupOpenMode, 
                                                 handleListClick, 
-                                                dateString
+                                                dateString,
+                                                cardNum
                                             }) => {
     const dateEvents = events[dateString] || [];
     const dispatch = useAppDispatch();
+    const holidays = useAppSelector((state) => state.holiday.allHolidays);
 
     return (
       <MonthGridCell
@@ -47,7 +51,7 @@ const EventCell: React.FC<EventCellProps> = ({
           dispatch(moveEvent({ event, fromDate, toDate: dateString }));
         }}
       >
-        {label}
+        {label} <span style={{fontWeight:'5', fontSize:'12px'}}>{cardNum}</span>
         {dateEvents.slice(0, 2).map((event, index) => (
             <DraggableEventWrapper
               key={index}

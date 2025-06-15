@@ -44,7 +44,7 @@ export const EditorPopup = styled.div<{
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
-  width: 320px;
+  width: 30%;
   display: flex;
   flex-direction: column;
   gap: 16px;
