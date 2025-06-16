@@ -234,15 +234,15 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
                       return updated;
                     })
                   }}
-                  onClick={(e) => {
-                    if (editorClosedRef.current) return; 
-                    e.stopPropagation(); 
-                    setEditorOpen(true); 
-                    setSelectedDate(dateString); 
-                    setEditorPosition(cursorPointDetection(e));
-                    setStartTime(oneSchedule.topIndex * 15);
-                    setEditingSchedule(daySchedules[oneScheduleIdx]);
-                  }}
+                  // onClick={(e) => {
+                  //   if (editorClosedRef.current) return; 
+                  //   e.stopPropagation(); 
+                  //   setEditorOpen(true); 
+                  //   setSelectedDate(dateString); 
+                  //   setEditorPosition(cursorPointDetection(e));
+                  //   setStartTime(oneSchedule.topIndex * 15);
+                  //   setEditingSchedule(daySchedules[oneScheduleIdx]);
+                  // }}
                   marginval = {oneScheduleIdx}
                   topval = {oneSchedule.topIndex * BLOCK_HEIGHT}
                   heightval = {oneSchedule.heightBlocks * BLOCK_HEIGHT}
