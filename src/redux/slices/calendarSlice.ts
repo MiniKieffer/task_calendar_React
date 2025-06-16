@@ -53,7 +53,7 @@ const calendarSlice = createSlice({
     },
     searchEvent: (state, action: PayloadAction<{searchQuery: string}>) => {
       const {searchQuery} = action.payload;
-      const keyWords =  searchQuery.toLowerCase().split(' ').filter(keyWord => keyWord.trim() !== '');
+      const keyWords =  searchQuery.toLowerCase().split(/[\s/.-]+/).filter(keyWord => keyWord.trim() !== '');
       if (keyWords.length === 0) return;
 
       const matched = Object.values(state.events)
@@ -62,11 +62,19 @@ const calendarSlice = createSlice({
           const title = event.title.toLowerCase();
           const desc = event.desc.toLowerCase();
           const styles = event.event_style.map(style => style.toLowerCase());
+          const [year, month, day] = event.date.split('-');
+          const dateParts = [year, String(Number(month)), String(Number(day))];
+          const dateFlat = [
+            dateParts.join(''),   
+            dateParts.slice(0, 2).join(''), 
+            ...dateParts  
+          ];
         
           return keyWords.some(keyWord =>
             title.includes(keyWord) ||
             desc.includes(keyWord) ||
-            styles.some(style => style.includes(keyWord))
+            styles.some(style => style.includes(keyWord)) ||
+            dateFlat.some(part => part.includes(keyWord))
           );
         });
 

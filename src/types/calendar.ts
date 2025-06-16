@@ -38,3 +38,17 @@ export type HolidayState = {
   loading: boolean;
   error: string | null;
 };
+
+export type Schedule = {
+  id: string;
+  date: string;
+  startTime: number;
+  endTime: number;
+  period: number;
+  title: string;
+  desc: string;
+};
+
+export type ScheduleState ={
+   schedules: Record<string, Schedule[]>;
+};

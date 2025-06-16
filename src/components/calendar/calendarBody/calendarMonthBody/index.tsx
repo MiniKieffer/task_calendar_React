@@ -50,7 +50,8 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate, dire
   });
 
   const totalRows =
-    (lastMonthDates.length + currentMonthDates.length + nextMonthDates.length) / 7 === 5 ? 5 : 6;
+    (lastMonthDates.length + currentMonthDates.length + nextMonthDates.length) / 7 === 5 ? 5 : 
+    (lastMonthDates.length + currentMonthDates.length + nextMonthDates.length) / 7 ===6 ? 6 : 4;
 
   return (
     <CalendarBodyContainer>
@@ -106,7 +107,6 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate, dire
               handleCellClick = {(e: React.MouseEvent) => {
                                 requestAnimationFrame(() => {
                                   if (editorClosedRef.current) return;
-                                  console.log(editorClosedRef.current);
                                   setEditorPosition(cursorPointDetection(e));
                                   setSelectedDate(dateString);
                                 });

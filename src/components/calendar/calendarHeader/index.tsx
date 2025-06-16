@@ -11,6 +11,7 @@ import { searchEvent, clearSearch } from '@/redux/slices/calendarSlice';
 import { CountryContainer, CountryDropdown } from './styles';
 import { OptionsList, OptionLabel } from '../eventEditor/styles';
 import { countries } from '@/utils/calendar';
+import useIsSmallScreen from '@/hooks/common/useIsSmallScreen';
 
 interface calendarHeaderComponentProps {
   displayDate: Date; 
@@ -29,6 +30,7 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
   const [searchQuery, setSearchQuery] = useState('');
   const [country, setCountry] = useState<string>('Sweden');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const {isSmall, isVerySmall} = useIsSmallScreen();
   const dispatch = useAppDispatch();
   const searchedEvents = useAppSelector((state) => state.calendar.searchedEvents);
 
@@ -68,6 +70,7 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
   return (
     <>
       <CalendarHeaderContainer>
+        {!isSmall && 
           <CalendarHeaderSection>
             <CustomButton variant="calendarHeaderUpDown" onClick={() => changeDate('previous')}>
               <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 1024 1024" version="1.1">
@@ -81,6 +84,7 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
             </CustomButton>
             <CustomButton onClick={() => directDateChange(new Date())}>Today</CustomButton>
           </CalendarHeaderSection>
+        }
           <CalendarHeaderSection variant="center">
             <CustomButton variant="calendarDatePiker" onClick={() => setOpenMonthYearSelector(!openMonthYearSelector)}>
               {`${MonthsFullName[month]} ${year}`}
@@ -97,48 +101,61 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
               />
             }
           </CalendarHeaderSection>
+
           <CalendarHeaderSection variant="right">
-            <SearchInput
-              type="text"
-              placeholder="Search events..."
-              name="title"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              required
-            />
-            {openSearchResult && searchQuery &&
-              <SearchResultContainer onClick={() => {setOpenSearchResult(false); setSearchQuery('');}}>
-                {searchedEvents?.length === 0 ? "No Results" : searchedEvents.map((searchedEvent) => (
-                  <SearchResultSubSelector key={searchedEvent.id} onClick={(e) => gotoSearchEvent(e ,searchedEvent.date)}>
-                    {`${searchedEvent.date}: ${searchedEvent.title}`}
-                  </SearchResultSubSelector>
-                ))}
-              </SearchResultContainer>
+            {isVerySmall &&
+              <CustomButton variant="calendarDatePiker">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15px" height="15px" viewBox="0 0 1024 1024" version="1.1">
+                  <path xmlns="http://www.w3.org/2000/svg" d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="#000000"/>
+                </svg>
+              </CustomButton>
             }
-            <CountryContainer>
-              <CountryDropdown onClick={() => setDropdownOpen(!dropdownOpen)}>
-                {country}
-              </CountryDropdown >
-              {dropdownOpen && (
-                <OptionsList>
-                  {countries.map((country, id) => (
-                    <OptionLabel
-                      key={id}
-                      onClick={() => {
-                        setCountry(country.name); 
-                        getCountry(country.name);
-                        setDropdownOpen(false); 
-                      }}
-                    >
-                      {country.name}
-                    </OptionLabel>
-                  ))}
-                </OptionsList>
-              )}
-            </CountryContainer>
-            <CustomButton onClick={() => handleActiveWeekMonthConversion('week')} activestate={activeWeekMonthConversion === 'week' ? 'active' : 'inactive'}>Week</CustomButton>
-            <CustomButton onClick={() => handleActiveWeekMonthConversion('month')} activestate={activeWeekMonthConversion === 'month' ? 'active' : 'inactive'}>Month</CustomButton>
+            {!isVerySmall &&
+              <>
+                <SearchInput
+                  type="text"
+                  placeholder="Search events..."
+                  name="title"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  required
+                />
+                {openSearchResult && searchQuery &&
+                  <SearchResultContainer onClick={() => {setOpenSearchResult(false); setSearchQuery('');}}>
+                    {searchedEvents?.length === 0 ? "No Results" : searchedEvents.map((searchedEvent) => (
+                      <SearchResultSubSelector key={searchedEvent.id} onClick={(e) => gotoSearchEvent(e ,searchedEvent.date)}>
+                        {`${searchedEvent.date}: ${searchedEvent.title}`}
+                      </SearchResultSubSelector>
+                    ))}
+                  </SearchResultContainer>
+                }
+                <CountryContainer>
+                  <CountryDropdown onClick={() => setDropdownOpen(!dropdownOpen)}>
+                    {country}
+                  </CountryDropdown >
+                  {dropdownOpen && (
+                    <OptionsList>
+                      {countries.map((country, id) => (
+                        <OptionLabel
+                          key={id}
+                          onClick={() => {
+                            setCountry(country.name); 
+                            getCountry(country.name);
+                            setDropdownOpen(false); 
+                          }}
+                        >
+                          {country.name}
+                        </OptionLabel>
+                      ))}
+                    </OptionsList>
+                  )}
+                </CountryContainer>
+                <CustomButton onClick={() => handleActiveWeekMonthConversion('week')} activestate={activeWeekMonthConversion === 'week' ? 'active' : 'inactive'}>Week</CustomButton>
+                <CustomButton onClick={() => handleActiveWeekMonthConversion('month')} activestate={activeWeekMonthConversion === 'month' ? 'active' : 'inactive'}>Month</CustomButton>
+              </>
+            }
           </CalendarHeaderSection>
+
       </CalendarHeaderContainer>
     </>
   );

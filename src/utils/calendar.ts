@@ -561,6 +561,17 @@ export const getCurrentWeekDates = (currentWeekFirstDate : Date) => {
     return(currentWeekDates);
 }
 
+export const getCurrentWeekDays = (currentWeekFirstDate : Date) => {
+    
+    const currentWeekDays: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+    const date = new Date(currentWeekFirstDate);
+    date.setDate(currentWeekFirstDate.getDate() + i);
+    currentWeekDays.push(date);
+  }
+    return(currentWeekDays);
+}
+
 export const cursorPointDetection = (e: React.MouseEvent) => {
     let { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
@@ -626,3 +637,5 @@ export const calendarGridGenerateTool = (displayDate: Date, lastMonthDates: numb
       currentIdx,
     };
 }
+
+export const pad = (n: number) => n.toString().padStart(2, '0');

@@ -14,7 +14,7 @@ const CalendarBody: React.FC<calendarBodyComponentProps> = ({ displayDate, weekM
   return (
     <CalendarBodyContainer>
       { weekMonthConversion === 'month' && <CalendarMonthBody displayDate = {displayDate} directDateChange = {directDateChange} /> }
-      { weekMonthConversion === 'week' && <CalendarWeekBody displayDate={displayDate} /> }
+      { weekMonthConversion === 'week' && <CalendarWeekBody displayDate={displayDate} directDateChange = {directDateChange} /> }
     </CalendarBodyContainer>
   );
 }

@@ -11,7 +11,7 @@ import { HolidayEventWrapper } from "./styles";
 interface EventCellProps {
     variant: "thisMonthCell" | "otherMonthCell" | "todayCell",
     label: string,
-    rownum: 5 | 6,
+    rownum: 4 | 5 | 6,
     handleCellClick: (e: React.MouseEvent) => void,
     events: Record<string, EventData[]>,
     setEditingEvent: (event: EventData) => void,

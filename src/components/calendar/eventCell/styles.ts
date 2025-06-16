@@ -10,4 +10,7 @@ export const HolidayEventWrapper = styled.div`
   padding: 6px;
   margin-top: 3px;
   z-index:300;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 `

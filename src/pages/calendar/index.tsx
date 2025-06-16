@@ -45,7 +45,7 @@ const CalenderPage: React.FC = () => {
   }, [dateChangeDirection, displayDate, weekMonthConversion]);
 
   useEffect(() => {
-    dispatch(fetchHolidays({ year: 2025, countryCode: countryCode }));
+    dispatch(fetchHolidays({ year: displayDate.getFullYear(), countryCode: countryCode }));
   },[countryCode, displayDate, dispatch]);
 
   const handleChangeDate = (dateChangeDirection:Direction) => {

@@ -17,6 +17,9 @@ export const CalendarHeaderSection = styled.div<{ variant?: 'center' | 'right' }
       display: flex;
       justify-content: center;
       position: relative;
+      @media (max-width: 470px) {
+        width:80%;
+      }
     `}
   ${(props) =>
    props.variant === 'right' &&
@@ -24,6 +27,12 @@ export const CalendarHeaderSection = styled.div<{ variant?: 'center' | 'right' }
      display: flex;
      justify-content: flex-end;
      position: relative;
+     @media (max-width: 850px) {
+        width:60%;
+      }
+     @media (max-width: 470px) {
+       width:20%;
+     }
    `}
 `;
 
@@ -73,7 +82,7 @@ export const SearchResultSubSelector = styled.div`
 export const CountryContainer = styled.div`
   box-sizing: border-box;
   position: relative;
-  width: 100%;
+  width: 70%;
   font-size: 10px
 `;
 
