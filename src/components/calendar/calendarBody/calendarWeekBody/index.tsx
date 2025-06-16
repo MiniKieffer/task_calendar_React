@@ -226,13 +226,14 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
               {schedule[dayIndex]?.map((oneSchedule, oneScheduleIdx) => (
                 <ScheduleCell
                   key={oneScheduleIdx}
-                  onMouseDown={() =>
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
                     setSchedule((prev) => {
                       const updated = [...prev];
                       updated[dayIndex][oneScheduleIdx].dragging = true;
                       return updated;
                     })
-                  }
+                  }}
                   onClick={(e) => {
                     if (editorClosedRef.current) return; 
                     e.stopPropagation(); 
