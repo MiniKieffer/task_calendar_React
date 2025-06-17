@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {forwardRef} from 'react';
 
 import { TimePickerContainer, TimePickerSubSelector, TimePickerArrowButton, TimePickerLabel } from './styles';
 
@@ -11,12 +11,14 @@ interface TimePickerComponentProps {
   onStartMinuteChange: (direction: "up" | "down") => void;
   onEndHourChange: (direction: "up" | "down") => void;
   onEndMinuteChange: (direction: "up" | "down") => void;
+  refProp: React.RefObject<HTMLDivElement | null>;
 }
 
-const TimePicker: React.FC<TimePickerComponentProps> = ({startHour, startMinute, endHour, endMinute, onStartHourChange, onStartMinuteChange, onEndHourChange, onEndMinuteChange}) => {
+const TimePicker = forwardRef<HTMLDivElement, Omit<TimePickerComponentProps, 'refProp'>>( 
+    ({startHour, startMinute, endHour, endMinute, onStartHourChange, onStartMinuteChange, onEndHourChange, onEndMinuteChange}, ref) => {
   
   return (
-    <TimePickerContainer>
+    <TimePickerContainer ref = {ref}>
       <TimePickerSubSelector>
         <TimePickerArrowButton onClick={() => onStartHourChange("up")}>
             <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 1024 1024" version="1.1">
@@ -67,6 +69,6 @@ const TimePicker: React.FC<TimePickerComponentProps> = ({startHour, startMinute,
       </TimePickerSubSelector>
     </TimePickerContainer>
   );
-}
+});
 
 export default TimePicker;

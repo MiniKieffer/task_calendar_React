@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const MonthWeekSelectorContainer = styled.div`
-    width:100%;
+    width:50%;
     top: 100%;
     background: #fff;
     position: absolute;

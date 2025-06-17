@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useEffect } from 'react';
+import React, { useState, forwardRef, useEffect, useRef } from 'react';
 import CustomButton from "@/components/common/customButton";
 import {
   EditorPopup,
@@ -11,6 +11,7 @@ import {
   OptionsList,
   OptionLabel
 } from './styles';
+import { useOutsideClickClose } from "@/hooks/calendar/useOutsideClickClose";
 import { useAppDispatch } from '@/hooks/redux/useAppDispatch';
 import { EventData, PopupPosition } from '@/types/calendar';
 import { updateEvent, addEvent, deleteEvent } from '@/redux/slices/calendarSlice';
@@ -37,7 +38,7 @@ const options = [
 ];
 
 const EventEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refProp'>>(
-  ({ dateString, initialData, onClose, editorPosition, directDateChange, displayDate }, ref) => {
+  ({ dateString, initialData, onClose, editorPosition, directDateChange, displayDate}, ref) => {
     const dispatch = useAppDispatch();
     const [title, setTitle] = useState(initialData?.title || "");
     const [desc, setDesc] = useState(initialData?.desc || "");
@@ -47,6 +48,20 @@ const EventEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refProp'>
     const [year, setYear] = useState<number>(0);
     const [month, setMonth] = useState<number>(0);
     const [date, setDate] = useState<number>(0);
+    const datePickerRef = useRef<HTMLDivElement | null>(null);
+    const stylePickerRef = useRef<HTMLDivElement | null>(null);
+    const {justClosed: timePickerClosed} = useOutsideClickClose({
+              ref: datePickerRef,
+              onClose: () => {
+                setDatePickerOpen(false)
+              },
+            });
+    const {justClosed: stylePickerClosed} = useOutsideClickClose({
+              ref: stylePickerRef,
+              onClose: () => {
+                setDropdownOpen(false)
+              },
+            });
 
     const toggleValue = (value: string) => {
       setStyle(prev =>
@@ -99,9 +114,10 @@ const EventEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refProp'>
         $varient="editor"
         ref={ref} 
       >
-        <CustomButton variant='datePicker' onClick={() => setDatePickerOpen(!datePickerOpen)}>{`${year}-${month}-${date}`}</CustomButton>
+        <CustomButton variant='datePicker' onClick={() => {setDatePickerOpen(!datePickerOpen);}}>{`${year}-${month}-${date}`}</CustomButton>
         {datePickerOpen && 
           <DatePicker  
+            ref = {datePickerRef}
             year={year}
             month={month}
             onYearChange={(dir) => setYear(y => dir === "next" ? y + 1 : y - 1)}
@@ -124,11 +140,11 @@ const EventEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refProp'>
             required
           />
           <OptionContainer>
-            <Dropdown onClick={() => setDropdownOpen(!dropdownOpen)}>
+            <Dropdown onClick={() => {setDropdownOpen(!dropdownOpen);}}>
               {style.length > 0 ? style.join(", ") : "Select options"}
             </Dropdown>
             {dropdownOpen && (
-              <OptionsList>
+              <OptionsList  ref = {stylePickerRef}>
                 {options.map((opt, id) => (
                   <OptionLabel key={id}>
                     <input

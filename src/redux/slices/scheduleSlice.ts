@@ -3,6 +3,7 @@ import { Schedule, ScheduleState } from '@/types/calendar';
 
 const initialState: ScheduleState = {
   schedules: {},
+  searchedSchedule: []
 };
 
 const scheduleSlice = createSlice({
@@ -37,9 +38,38 @@ const scheduleSlice = createSlice({
       const { id, date } = action.payload;
       state.schedules[date] = state.schedules[date].filter(schedule => schedule.id !== id);
     },
-    
+    searchSchedule: (state, action: PayloadAction<{searchQuery: string}>) => {
+      const {searchQuery} = action.payload;
+      const keyWords =  searchQuery.toLowerCase().split(/[\s/.-]+/).filter(keyWord => keyWord.trim() !== '');
+      if (keyWords.length === 0) return;
+
+      const matched = Object.values(state.schedules)
+        .flat()
+        .filter(schedule => {
+          const title = schedule.title.toLowerCase();
+          const desc = schedule.desc.toLowerCase();
+          const [year, month, day] = schedule.date.split('-');
+          const dateParts = [year, String(Number(month)), String(Number(day))];
+          const dateFlat = [
+            dateParts.join(''),   
+            dateParts.slice(0, 2).join(''), 
+            ...dateParts  
+          ];
+        
+          return keyWords.some(keyWord =>
+            title.includes(keyWord) ||
+            desc.includes(keyWord) ||
+            dateFlat.some(part => part.includes(keyWord))
+          );
+        });
+
+      state.searchedSchedule = matched;
+    },
+    clearScheduleSearch: (state) => {
+      state.searchedSchedule = [];
+    }
   },
 });
 
-export const { addSchedule, moveSchedule, updateSchedule, deleteSchedule } = scheduleSlice.actions;
+export const { addSchedule, moveSchedule, updateSchedule, deleteSchedule, searchSchedule, clearScheduleSearch } = scheduleSlice.actions;
 export default scheduleSlice.reducer;

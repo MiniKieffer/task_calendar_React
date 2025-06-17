@@ -1,3 +1,4 @@
+import React, { forwardRef } from 'react';
 import { EditorPopup } from "../eventEditor/styles";
 import { EventData, PopupPosition } from "@/types/calendar";
 import { DailyEventListWrapper } from "./styles";
@@ -15,9 +16,13 @@ interface DailyEventListModalProps {
     listPosition: PopupPosition;
     setEditorPopupOpenMode: (editorPopupOpenMode: boolean) => void,
     refProp: React.RefObject<HTMLDivElement | null>;
+    listCloseMode: boolean;
+    editorCloseMode: boolean;
 }
 
-const DailyEventListModal: React.FC<DailyEventListModalProps> = ({handleCellClick, dateString, events, onClose, listPosition, setEditingEvent, setEditorPopupOpenMode, refProp }) => {
+const DailyEventListModal = forwardRef<HTMLDivElement, Omit<DailyEventListModalProps, 'refProp'>>( 
+  ({ handleCellClick, onClose, events, setEditingEvent, dateString, listPosition, setEditorPopupOpenMode, listCloseMode, editorCloseMode }, ref) => {
+
         const dateEvents = events[dateString] || [];
         const dispatch = useAppDispatch();
 
@@ -26,11 +31,10 @@ const DailyEventListModal: React.FC<DailyEventListModalProps> = ({handleCellClic
                      $left={listPosition.x}
                      $transformOrigin={listPosition.transformOrigin}
                      $varient="list"
-                     ref={refProp}
+                     ref={ref}
         >
           <EditorTitle>Events on {dateString}</EditorTitle>
           <DailyEventListWrapper
-            onClick={(e) => {handleCellClick(e)}}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               const data = JSON.parse(e.dataTransfer.getData("text/plain"));
@@ -46,7 +50,8 @@ const DailyEventListModal: React.FC<DailyEventListModalProps> = ({handleCellClic
                     index={index}
                     dateString={dateString}
                     onClick={(event, e) => {
-                    e.stopPropagation();
+                      if(listCloseMode || editorCloseMode) return;
+                      e.stopPropagation();
                       handleCellClick(e);
                       setEditingEvent(event);
                       setEditorPopupOpenMode(true);
@@ -59,6 +64,6 @@ const DailyEventListModal: React.FC<DailyEventListModalProps> = ({handleCellClic
           </Button>
         </EditorPopup>
     );
-};
+});
 
 export default DailyEventListModal;

@@ -42,9 +42,9 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate, dire
   });
   const { justClosed: listClosed } = useOutsideClickClose({
     ref: listPopupRef,
+    ignoreRef: editorPopupRef,
     onClose: () => {
       setListDate(null);
-      setEditingEvent(null);
       setListPopupOpenMode(false);
     },
   });
@@ -72,12 +72,12 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate, dire
       )}
       {listDate && listPosition && listPopupOpenMode && (
         <DailyEventListModal
-          handleCellClick = {(e) => { if(editorClosed || listClosed) return; 
-                                      setEditorPosition(cursorPointDetection(e)); setSelectedDate(listDate);
+          handleCellClick = {(e) => { 
+                                setEditorPosition(cursorPointDetection(e)); 
+                                setSelectedDate(listDate);
                             }}
           onClose={() => {
-            setSelectedDate(null);
-            setEditingEvent(null);
+            setListDate(null);
             setListPopupOpenMode(false);
           }}
           events = {events}
@@ -85,7 +85,9 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate, dire
           dateString={listDate}
           listPosition={listPosition}
           setEditorPopupOpenMode = {setEditorPopupOpenMode}
-          refProp={listPopupRef}
+          ref={listPopupRef}
+          listCloseMode = {listClosed}
+          editorCloseMode = {editorClosed}
         />
       )}
       <CalendarGridContainer variant="calendarDayBar">

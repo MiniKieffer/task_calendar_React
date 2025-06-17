@@ -8,12 +8,13 @@ interface MonthYearSelectorComponentProps {
   month: number;
   onYearChange: (direction: "prev" | "next") => void;
   onMonthChange: (direction: "prev" | "next") => void;
+  refProp: React.RefObject<HTMLDivElement | null>;
 }
 
-const MonthYearSelector: React.FC<MonthYearSelectorComponentProps> = ({year, month, onYearChange, onMonthChange}) => {
+const MonthYearSelector: React.FC<MonthYearSelectorComponentProps> = ({year, month, onYearChange, onMonthChange, refProp}) => {
   
   return (
-    <MonthWeekSelectorContainer>
+    <MonthWeekSelectorContainer ref={refProp}>
       {/* Year Selector */}
       <SubSelector>
         <ArrowButton onClick={() => onYearChange("prev")}>

@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useEffect } from 'react';
+import React, { useState, forwardRef, useEffect, useRef } from 'react';
 import CustomButton from "@/components/common/customButton";
 import {
   ScheduleEditorPopup,
@@ -14,6 +14,7 @@ import { nanoid } from '@reduxjs/toolkit';
 import DatePicker from '../datePicker';
 import TimePicker from '../timePicker';
 import { pad } from '@/utils/calendar';
+import { useOutsideClickClose } from "@/hooks/calendar/useOutsideClickClose";
 
 type EventEditorProps = {
   dateString: string;
@@ -24,10 +25,11 @@ type EventEditorProps = {
   directDateChange: (data: Date) => void;
   displayDate: Date;
   startTimer: number;
+  period: number;
 };
 
 const ScheduleEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refProp'>>(
-  ({ dateString, initialData, onClose, editorPosition, directDateChange, displayDate, startTimer}, ref) => {
+  ({ dateString, initialData, onClose, editorPosition, directDateChange, displayDate, startTimer, period}, ref) => {
     const dispatch = useAppDispatch();
     const [title, setTitle] = useState(initialData?.title || "");
     const [desc, setDesc] = useState(initialData?.desc || "");
@@ -37,7 +39,21 @@ const ScheduleEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refPro
     const [month, setMonth] = useState(0);
     const [date, setDate] = useState(0);
     const [startTime, setStartTime] = useState(startTimer);
-    const [endTime, setEndTime] = useState(startTimer/60 < 23 ? startTimer + 60 : 24 * 60);
+    const [endTime, setEndTime] = useState(startTimer + period);
+    const datePickerRef = useRef<HTMLDivElement | null>(null);
+    const timePickerRef = useRef<HTMLDivElement | null>(null);
+    const {justClosedRef: datePickerClosedRef} = useOutsideClickClose({
+          ref: datePickerRef,
+          onClose: () => {
+            setDatePickerOpen(false)
+        },
+      });
+    const {justClosedRef: timePickerClosedRef} = useOutsideClickClose({
+          ref: timePickerRef,
+          onClose: () => {
+            setTimePickerOpen(false)
+        },
+      });
 
     const formatDate = (date: Date) => date.toLocaleDateString("en-CA");
 
@@ -91,6 +107,7 @@ const ScheduleEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refPro
         {
             datePickerOpen && 
             <DatePicker  
+              ref = {datePickerRef}
               year={year}
               month={month}
               onYearChange={(dir) => setYear(y => dir === "next" ? y + 1 : y - 1)}
@@ -108,6 +125,7 @@ const ScheduleEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refPro
         {
             timePickerOpen &&
             <TimePicker 
+                ref = {timePickerRef}
                 startHour = {Math.floor(startTime / 60)}
                 startMinute = {startTime % 60}
                 endHour = {Math.floor(endTime / 60)}

@@ -159,7 +159,7 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
     props.variant === 'todayCell' &&
     css`
       background-color: #cccccc;
-      border-top: 2px solid tomato;
+      border: 1px solid tomato;
       height: calc(74vh/${props.rownum});
       border-radius: 5px;
     `}
@@ -222,12 +222,12 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
     `}
 `;
 
-export const ScheduleCell = styled.div<{ marginval: number; topval: number; heightval:number; cursorval?: "grabbing" | "grab"; }>`
+export const ScheduleCell = styled.div<{ marginval: number; topval: number; heightval:number; cursorval?: "grabbing" | "grab"; highlight?: boolean }>`
       position: absolute;
       left: 0;
       right: 0;
       background: #6699ff;  
-      z-index: 100;
+      z-index: ${({ highlight }) => (highlight ? '200' : '100')};
       ${(props) =>
       css`
         margin-left: calc(7px * ${props.marginval});

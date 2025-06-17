@@ -28,14 +28,17 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
   const dispatch = useAppDispatch();
   const [ editorOpen, setEditorOpen ] = useState<boolean>(false);
   const [ startTime, setStartTime ] = useState<number | null>(null);
+  const [ period, setPeriod ] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [scheduleID, setScheduleID] = useState<number | null>(null);
   const [dayID, setDayID] = useState<number | null>(null);
   const [editorPosition, setEditorPosition] = useState<PopupPosition | null>(null);
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
+  const [moveScheduleID, setMoveScheduleID] = useState(-1);
   const editorPopupRef = useRef<HTMLDivElement | null>(null);
   const schedules = useAppSelector((state) => state.schedule.schedules);
   const [scheduleMoveMode, setScheduleMoveMode] = useState<boolean>(false);
+  const isDraggingRef = useRef(false);
   const formatDate = (date: Date) => date.toLocaleDateString("en-CA");
   const {justClosedRef: editorClosedRef} = useOutsideClickClose({
       ref: editorPopupRef,
@@ -57,6 +60,7 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
   ));
 
   const handleMouseMove = (e: MouseEvent) => {
+    isDraggingRef.current = true;
     setSchedule((prev) =>
       prev.map((daySchedules, dayIdx) =>
         daySchedules.map((schedule, scheduleIdx) => {
@@ -88,6 +92,7 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
     );
   };
   const handleMouseUp = () => {
+      
       setSchedule((prev) =>
         prev.map((daySchedules) =>
           daySchedules.map((schedule) => ({
@@ -120,7 +125,12 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
 
   useEffect(() => {
     if(selectedDate && scheduleID !== null && dayID !== null) {
-        dispatch(moveSchedule({ date: selectedDate, scheduleIndex: scheduleID, startTime: schedule[dayID][scheduleID].topIndex * 15, period: schedule[dayID][scheduleID].heightBlocks * 15}));
+        dispatch(moveSchedule({ 
+                          date: selectedDate, 
+                          scheduleIndex: scheduleID, 
+                          startTime: schedule[dayID][scheduleID].topIndex * 15, 
+                          period: schedule[dayID][scheduleID].heightBlocks * 15
+                        }));
     }
   },[scheduleMoveMode]);
 
@@ -139,7 +149,7 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
   return (
     <>
       <CalendarGridContainer variant="calendarWeekDayBar">
-        {editorOpen && selectedDate && editorPosition && startTime &&
+        {editorOpen && selectedDate && editorPosition && startTime && period &&
           <ScheduleEditor 
             dateString = {selectedDate}
             initialData = {editingSchedule}
@@ -149,6 +159,7 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
             directDateChange = {directDateChange}
             displayDate={displayDate}
             startTimer = {startTime}
+            period={period}
           />
         }
         <WeekGridCell variant="timeZoneCell">{timeZone}</WeekGridCell>
@@ -201,6 +212,7 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
                               setSelectedDate(dateString); 
                               setEditorOpen(true);
                               setStartTime(15 * index);
+                              setPeriod(60);
                             }
                           } 
                 />
@@ -211,14 +223,17 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
                   key={oneScheduleIdx}
                   
                   onClick={(e) => {
-                    if (editorClosedRef.current) return; 
+                    if (editorClosedRef.current || isDraggingRef.current) return; 
                     e.stopPropagation(); 
                     setEditorOpen(true); 
                     setSelectedDate(dateString); 
                     setEditorPosition(cursorPointDetection(e));
                     setStartTime(oneSchedule.topIndex * 15);
+                    setPeriod(oneSchedule.heightBlocks * 15);
                     setEditingSchedule(daySchedules[oneScheduleIdx]);
+                    setMoveScheduleID(oneScheduleIdx + dayIndex);
                   }}
+                  highlight = {moveScheduleID === dayIndex + oneScheduleIdx}
                   marginval = {oneScheduleIdx}
                   topval = {oneSchedule.topIndex * BLOCK_HEIGHT}
                   heightval = {oneSchedule.heightBlocks * BLOCK_HEIGHT}
@@ -226,6 +241,8 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
                 > 
                 <SubScheduleCell 
                   onMouseDown={(e) =>{
+                      setMoveScheduleID(oneScheduleIdx + dayIndex);
+                      isDraggingRef.current = false;
                       e.stopPropagation(); 
                       setSelectedDate(dateString); 
                       setScheduleID(oneScheduleIdx);
@@ -249,6 +266,8 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
                   {/* Resize handle */}
                   <ScheduleResizeHandler
                     onMouseDown={(e) => {
+                      setMoveScheduleID(oneScheduleIdx + dayIndex);
+                      isDraggingRef.current = false;
                       setSelectedDate(dateString); 
                       setScheduleID(oneScheduleIdx);
                       setDayID(dayIndex);

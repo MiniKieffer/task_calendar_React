@@ -51,4 +51,5 @@ export type Schedule = {
 
 export type ScheduleState ={
    schedules: Record<string, Schedule[]>;
+   searchedSchedule: Schedule[];
 };

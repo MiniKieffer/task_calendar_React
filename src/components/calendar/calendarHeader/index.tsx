@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CustomButton from "@/components/common/customButton";
 import MonthYearSelector from '../monthYearSelector';
 import { CalendarHeaderContainer, CalendarHeaderSection, SearchResultContainer, SearchResultSubSelector, MobileHeader } from "./styles";
@@ -8,10 +8,12 @@ import { SearchInput } from './styles';
 import { useAppSelector } from "@/hooks/redux/useAppSelector";
 import { useAppDispatch } from '@/hooks/redux/useAppDispatch';
 import { searchEvent, clearSearch } from '@/redux/slices/calendarSlice';
+import { searchSchedule, clearScheduleSearch } from '@/redux/slices/scheduleSlice';
 import { CountryContainer, CountryDropdown } from './styles';
 import { OptionsList, OptionLabel } from '../eventEditor/styles';
 import { countries } from '@/utils/calendar';
 import useIsSmallScreen from '@/hooks/common/useIsSmallScreen';
+import { useOutsideClickClose } from "@/hooks/calendar/useOutsideClickClose";
 
 interface calendarHeaderComponentProps {
   displayDate: Date; 
@@ -33,6 +35,33 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
   const [openMobileFade, setOpenMobileFade] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const {isSmall, isVerySmall} = useIsSmallScreen();
+  const searchListRef = useRef<HTMLDivElement | null>(null);
+  const countryListRef = useRef<HTMLDivElement | null>(null);
+  const monthYearListRef = useRef<HTMLDivElement | null>(null);
+
+  const {justClosed: searchListClosed} = useOutsideClickClose({
+                                                                ref: searchListRef,
+                                                                onClose: () => {
+                                                                  setSearchQuery("");
+                                                                  setOpenSearchResult(false);
+                                                                  dispatch(clearSearch()); 
+                                                                },
+                                                              });
+
+  const {justClosed: countryListClosed} = useOutsideClickClose({
+                                                                ref: countryListRef,
+                                                                onClose: () => {
+                                                                  setDropdownOpen(false); 
+                                                                },
+                                                              });
+
+  const {justClosed: monthYearListClosed} = useOutsideClickClose({
+                                                                ref: monthYearListRef,
+                                                                onClose: () => {
+                                                                  setOpenMonthYearSelector(false); 
+                                                                },
+                                                              });
+                                                              
   
   const dispatch = useAppDispatch();
   const searchedEvents = useAppSelector((state) => state.calendar.searchedEvents);
@@ -44,7 +73,11 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    dispatch(searchEvent({searchQuery}));
+    if(activeWeekMonthConversion === 'month') {
+      dispatch(searchEvent({searchQuery}));
+    } else {
+      dispatch(searchSchedule({searchQuery}));
+    }
     setOpenSearchResult(true);
   };
 
@@ -111,7 +144,7 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
                   required
                 />
                 {openSearchResult && searchQuery &&
-                  <SearchResultContainer onClick={() => {setOpenSearchResult(false); setSearchQuery('');}}>
+                  <SearchResultContainer onClick={() => {setOpenSearchResult(false); setSearchQuery('');}} ref={searchListRef}>
                     {searchedEvents?.length === 0 ? "No Results" : searchedEvents.map((searchedEvent) => (
                       <SearchResultSubSelector key={searchedEvent.id} onClick={(e) => gotoSearchEvent(e ,searchedEvent.date)}>
                         {`${searchedEvent.date}: ${searchedEvent.title}`}
@@ -124,7 +157,7 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
                     {country}
                   </CountryDropdown >
                   {dropdownOpen && (
-                    <OptionsList>
+                    <OptionsList ref={countryListRef}>
                       {countries.map((country, id) => (
                         <OptionLabel
                           key={id}
@@ -167,6 +200,7 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
             </CustomButton>
             {openMonthYearSelector && 
               <MonthYearSelector
+                refProp = {monthYearListRef}
                 year={year}
                 month={month}
                 onYearChange={(dir) => setYear(y => dir === "next" ? y + 1 : y - 1)}
@@ -198,7 +232,7 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
                   required
                 />
                 {openSearchResult && searchQuery &&
-                  <SearchResultContainer onClick={() => {setOpenSearchResult(false); setSearchQuery('');}}>
+                  <SearchResultContainer onClick={() => {setOpenSearchResult(false); setSearchQuery('');}} ref={searchListRef}>
                     {searchedEvents?.length === 0 ? "No Results" : searchedEvents.map((searchedEvent) => (
                       <SearchResultSubSelector key={searchedEvent.id} onClick={(e) => gotoSearchEvent(e ,searchedEvent.date)}>
                         {`${searchedEvent.date}: ${searchedEvent.title}`}
@@ -211,7 +245,7 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
                     {country}
                   </CountryDropdown >
                   {dropdownOpen && (
-                    <OptionsList>
+                    <OptionsList ref={countryListRef}>
                       {countries.map((country, id) => (
                         <OptionLabel
                           key={id}

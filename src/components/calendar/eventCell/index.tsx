@@ -43,6 +43,8 @@ const EventCell: React.FC<EventCellProps> = ({
     const dispatch = useAppDispatch();
     const holidays = useAppSelector((state) => state.holiday.allHolidays);
 
+    const maxEventsToShow = findHolidayByDate(holidays, dateString) ? 1 : 2;
+
     return (
       <MonthGridCell
         key={dateString}
@@ -59,8 +61,8 @@ const EventCell: React.FC<EventCellProps> = ({
       >
         {label} <span style={{fontWeight:'5', fontSize:'12px'}}>{cardNum}</span>
         {findHolidayByDate(holidays, dateString)?<HolidayEventWrapper>{`Holiday: ${findHolidayByDate(holidays, dateString)?.localName}`}</HolidayEventWrapper> : null}
-        
-        {dateEvents.slice(0, 2).map((event, index) => (
+       
+        {dateEvents.slice(0, maxEventsToShow).map((event, index) => (
             <DraggableEventWrapper
               key={index}
               event={event}
@@ -75,9 +77,9 @@ const EventCell: React.FC<EventCellProps> = ({
               }}
             />
         ))}
-        {dateEvents.length > 2 && (
+        {dateEvents.length > maxEventsToShow && (
           <EventWrapper onClick={(e) => {if(editorCloseMode || listCloseMode) return; handleListClick(e); setListPopupOpenMode(true); e.stopPropagation();}}>
-             +{dateEvents.length - 2} more
+             +{dateEvents.length - maxEventsToShow} more
           </EventWrapper>
         )}
       </MonthGridCell>
