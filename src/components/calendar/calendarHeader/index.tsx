@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CustomButton from "@/components/common/customButton";
 import MonthYearSelector from '../monthYearSelector';
-import { CalendarHeaderContainer, CalendarHeaderSection, SearchResultContainer, SearchResultSubSelector } from "./styles";
+import { CalendarHeaderContainer, CalendarHeaderSection, SearchResultContainer, SearchResultSubSelector, MobileHeader } from "./styles";
 import { MonthsFullName } from "@/utils/calendar";
 import { Direction, Mode } from "@/types/calendar";
 import { SearchInput } from './styles';
@@ -29,8 +29,11 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
   const [month, setMonth] = useState(displayDate.getMonth());
   const [searchQuery, setSearchQuery] = useState('');
   const [country, setCountry] = useState<string>('Sweden');
+  const [openMobileBar, setOpenMobileBar] = useState(false);
+  const [openMobileFade, setOpenMobileFade] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const {isSmall, isVerySmall} = useIsSmallScreen();
+  
   const dispatch = useAppDispatch();
   const searchedEvents = useAppSelector((state) => state.calendar.searchedEvents);
 
@@ -70,6 +73,78 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
   return (
     <>
       <CalendarHeaderContainer>
+        {isSmall &&
+          <CustomButton onClick={() => setOpenMobileFade(!openMobileFade)} variant="calendarDatePiker" style={{position:'absolute',fontSize:'100%',top:'7px', right:'25px', padding:'0px', background:'transparent'}}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12px" height="12px" viewBox="0 0 1024 1024" version="1.1">
+            <path xmlns="http://www.w3.org/2000/svg" d="M320 89.6h640v76.8H320V89.6z m0 768h640v76.8H320v-76.8z m-256-768h128v76.8H64V89.6z m256 384h640v76.8H320V473.6z m-256 0h128v76.8H64V473.6z m0 384h128v76.8H64v-76.8z" fill="#FFFFFF"/>
+            </svg>
+          </CustomButton>
+        }
+        {
+          isSmall && openMobileFade &&
+          <div style={{backgroundColor:'#ffa64d', width:'100%', height:'6%', position:'absolute', top:'30px', marginLeft:'-10px', zIndex:'1000', display:'flex', justifyContent:'center'}}>
+            <CalendarHeaderSection style={{justifyContent:'center', alignItems:'center', display:'flex'}}>
+            <CustomButton variant="calendarHeaderUpDown" onClick={() => changeDate('previous')}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 1024 1024" version="1.1">
+                <path d="M903.232 768l56.768-50.432L512 256l-448 461.568 56.768 50.432L512 364.928z" fill="#000000"/>
+              </svg>
+            </CustomButton>
+            <CustomButton onClick={() => directDateChange(new Date())}>Today</CustomButton>
+            <CustomButton variant="calendarHeaderUpDown" onClick={() => changeDate('next')} style={{marginLeft:'10px'}}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 1024 1024" version="1.1">
+                <path d="M903.232 256l56.768 50.432L512 768 64 306.432 120.768 256 512 659.072z" fill="#000000"/>
+              </svg>
+            </CustomButton>
+          </CalendarHeaderSection>
+          </div>
+        }
+        {
+          isVerySmall && openMobileBar &&
+          <MobileHeader>
+             <>
+                <SearchInput
+                  type="text"
+                  placeholder="Search events..."
+                  name="title"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  required
+                />
+                {openSearchResult && searchQuery &&
+                  <SearchResultContainer onClick={() => {setOpenSearchResult(false); setSearchQuery('');}}>
+                    {searchedEvents?.length === 0 ? "No Results" : searchedEvents.map((searchedEvent) => (
+                      <SearchResultSubSelector key={searchedEvent.id} onClick={(e) => gotoSearchEvent(e ,searchedEvent.date)}>
+                        {`${searchedEvent.date}: ${searchedEvent.title}`}
+                      </SearchResultSubSelector>
+                    ))}
+                  </SearchResultContainer>
+                }
+                <CountryContainer>
+                  <CountryDropdown onClick={() => setDropdownOpen(!dropdownOpen)}>
+                    {country}
+                  </CountryDropdown >
+                  {dropdownOpen && (
+                    <OptionsList>
+                      {countries.map((country, id) => (
+                        <OptionLabel
+                          key={id}
+                          onClick={() => {
+                            setCountry(country.name); 
+                            getCountry(country.name);
+                            setDropdownOpen(false); 
+                          }}
+                        >
+                          {country.name}
+                        </OptionLabel>
+                      ))}
+                    </OptionsList>
+                  )}
+                </CountryContainer>
+                <CustomButton onClick={() => handleActiveWeekMonthConversion('week')} activestate={activeWeekMonthConversion === 'week' ? 'active' : 'inactive'}>Week</CustomButton>
+                <CustomButton onClick={() => handleActiveWeekMonthConversion('month')} activestate={activeWeekMonthConversion === 'month' ? 'active' : 'inactive'}>Month</CustomButton>
+              </>
+          </MobileHeader>
+        }
         {!isSmall && 
           <CalendarHeaderSection>
             <CustomButton variant="calendarHeaderUpDown" onClick={() => changeDate('previous')}>
@@ -85,6 +160,7 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
             <CustomButton onClick={() => directDateChange(new Date())}>Today</CustomButton>
           </CalendarHeaderSection>
         }
+
           <CalendarHeaderSection variant="center">
             <CustomButton variant="calendarDatePiker" onClick={() => setOpenMonthYearSelector(!openMonthYearSelector)}>
               {`${MonthsFullName[month]} ${year}`}
@@ -104,9 +180,10 @@ const CalendarHeader: React.FC<calendarHeaderComponentProps> = ({ displayDate, c
 
           <CalendarHeaderSection variant="right">
             {isVerySmall &&
-              <CustomButton variant="calendarDatePiker">
+              <CustomButton variant="calendarDatePiker" onClick={() => setOpenMobileBar(!openMobileBar)} style={{backgroundColor:'white'}}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="15px" height="15px" viewBox="0 0 1024 1024" version="1.1">
-                  <path xmlns="http://www.w3.org/2000/svg" d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="#000000"/>
+                  {!openMobileBar && <path xmlns="http://www.w3.org/2000/svg" d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="#000000"/>}
+                  {openMobileBar && <path xmlns="http://www.w3.org/2000/svg" d="M256 120.768L306.432 64 768 512l-461.568 448L256 903.232 659.072 512z" fill="#000000"/>}
                 </svg>
               </CustomButton>
             }

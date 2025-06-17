@@ -106,9 +106,9 @@ const ScheduleEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refPro
                 endHour = {Math.floor(endTime / 60)}
                 endMinute = {endTime % 60}
                 onStartHourChange = {(dir) => setStartTime(t => dir === "up" ? ((endTime - t > 60 && Math.floor(t / 60) < 23) ? t + 60 : t) : (Math.floor(t / 60) > 0 ? t - 60 : t))}
-                onStartMinuteChange = {(dir) => setStartTime(t => dir === "up" ? ((endTime - t > 15 && Math.floor(t / 15) < 95) ? t + 15 : t) : (Math.floor(t / 15) > 0 ? t - 15 : t))}
+                onStartMinuteChange = {(dir) => setStartTime(t => dir === "up" ? ((endTime - t > 30 && Math.floor(t / 15) < 95) ? t + 15 : t) : (Math.floor(t / 15) > 0 ? t - 15 : t))}
                 onEndHourChange = {(dir) => setEndTime(t => dir === "up" ? (Math.floor(t / 60) < 23 ? t + 60 : t) : ((t - startTime > 60 && Math.floor(t / 60) > 0) ? t - 60 : t))}
-                onEndMinuteChange = {(dir) => setEndTime(t => dir === "up" ? (Math.floor(t / 15) < 95 ? t + 15 : t) : ((t - startTime > 15 && Math.floor(t / 15) > 0) ? t - 15 : t))}
+                onEndMinuteChange = {(dir) => setEndTime(t => dir === "up" ? (Math.floor(t / 15) < 95 ? t + 15 : t) : ((t - startTime > 30 && Math.floor(t / 15) > 0) ? t - 15 : t))}
             />
         }
         <form onSubmit={handleSave}>

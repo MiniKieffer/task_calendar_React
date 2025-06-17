@@ -222,19 +222,21 @@ export const MonthGridCell = styled.div<{ variant?: 'dayBarCell' | 'thisMonthCel
     `}
 `;
 
-export const ScheduleCell = styled.div<{ marginval: number; topval: number; heightval:number; cursorval?: "grabbing" | "grab" }>`
+export const ScheduleCell = styled.div<{ marginval: number; topval: number; heightval:number; cursorval?: "grabbing" | "grab"; }>`
       position: absolute;
       left: 0;
       right: 0;
-      background: rgba(0, 120, 255, 0.3);
-      border: 1px solid #007bff;
+      background: #6699ff;  
+      z-index: 100;
       ${(props) =>
       css`
-        margin-left: calc(2px * ${props.marginval});
+        margin-left: calc(7px * ${props.marginval});
         top: ${props.topval}px;
         height: ${props.heightval}px;
         cursor: ${props.cursorval};
       `}
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
 `;
 
 export const ScheduleResizeHandler = styled.div`
@@ -243,7 +245,21 @@ export const ScheduleResizeHandler = styled.div`
        left: 0;
        right: 0;
        height: 6px;
-       background: #007bff;
+       background: #0066cc;
        cursor: ns-resize;
 `;
 
+export const SubScheduleCell = styled.div`
+       width: 100%;
+       height: 100%; 
+       display: flex; 
+       justify-content: center;
+`;
+
+export const TypoBox = styled.div`
+       width: 80%;
+       user-select: none;
+       color: white;
+       font-size: 12px;
+       white-space: nowrap;
+`;

@@ -10,12 +10,12 @@ export const TimePickerContainer = styled.div`
     z-index: 10;
     max-height: 200px;
     display: flex;
-    flex-direction: column;
     border: 1px solid black;
     align-items: center;
+    flex-direction: column;
 `
-export const DatePickerSubSelector = styled.div`
-    width:25%;
+export const TimePickerSubSelector = styled.div`
+    width:30%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -23,16 +23,24 @@ export const DatePickerSubSelector = styled.div`
     padding: 2px 5px;
 `;
 
-export const DatePickerArrowButton = styled.button`
+export const TimePickerArrowButton = styled.button`
     background: transparent;
     border: none;
-    font-size: 10px;
+    font-size: 15px;
     cursor: pointer;
+     &:hover {
+      background-color: gray;
+    }
+
+    &:active {
+      transform: scale(0.97);
+      background-color: gray;
+    }
 `;
 
-export const DatePickerLabel = styled.div`
+export const TimePickerLabel = styled.div`
     font-weight: 500;
-    font-size: 10px;
-    min-width: 80px;
+    font-size: 15px;
+    min-width: 30%;
     text-align: center;
 `;

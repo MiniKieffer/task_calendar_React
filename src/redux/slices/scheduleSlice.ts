@@ -14,16 +14,10 @@ const scheduleSlice = createSlice({
       if (!state.schedules[date]) state.schedules[date] = [];
       state.schedules[date].push(action.payload);
     },
-    moveSchedule: (state, action: PayloadAction<{ date: string; scheduleIndex: number; startTime: number }>) => {
-      const {date, scheduleIndex, startTime} = action.payload;
-      const period = state.schedules[date][scheduleIndex].period;
-      state.schedules[date][scheduleIndex].startTime = startTime;
-      state.schedules[date][scheduleIndex].endTime = startTime + period;
-    },
-    stretchSchedule: (state, action: PayloadAction<{ date: string; scheduleIndex: number; period: number }>) => {
-      const {date, scheduleIndex, period} = action.payload;
-      const startTime = state.schedules[date][scheduleIndex].startTime;
+    moveSchedule: (state, action: PayloadAction<{ date: string; scheduleIndex: number; startTime: number; period: number }>) => {
+      const {date, scheduleIndex, startTime, period} = action.payload;
       state.schedules[date][scheduleIndex].period = period;
+      state.schedules[date][scheduleIndex].startTime = startTime;
       state.schedules[date][scheduleIndex].endTime = startTime + period;
     },
     updateSchedule: (state, action: PayloadAction<{ schedule: Schedule; fromDate: string;}>) => {
@@ -47,5 +41,5 @@ const scheduleSlice = createSlice({
   },
 });
 
-export const { addSchedule, moveSchedule, stretchSchedule, updateSchedule, deleteSchedule } = scheduleSlice.actions;
+export const { addSchedule, moveSchedule, updateSchedule, deleteSchedule } = scheduleSlice.actions;
 export default scheduleSlice.reducer;

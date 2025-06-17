@@ -18,7 +18,7 @@ export const CalendarHeaderSection = styled.div<{ variant?: 'center' | 'right' }
       justify-content: center;
       position: relative;
       @media (max-width: 470px) {
-        width:80%;
+        width:60%;
       }
     `}
   ${(props) =>
@@ -95,3 +95,16 @@ export const CountryDropdown = styled.div`
   background: #fff;
 `;
 
+export const MobileHeader = styled.div`
+  width: 85%;
+  height: 35px; 
+  position: absolute; 
+  top: 33px;
+  right: 47px; 
+  background-color: white; 
+  z-index: 500;
+  display: flex; 
+  justify-content: flex-end; 
+  align-items: center;
+  padding: 5px;
+`

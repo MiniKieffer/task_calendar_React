@@ -4,6 +4,7 @@ import {
          CalendarGridContainer,  
          WeekGridCell
         } from "../styles";
+import { pad } from '@/utils/calendar';
 import { Days } from "@/utils/calendar";
 import useCalendarDates from "@/hooks/calendar/useCalendarDates";
 import ScheduleEditor from '../../scheduleEditor';
@@ -11,8 +12,8 @@ import { useAppSelector } from '@/hooks/redux/useAppSelector';
 import { useAppDispatch } from '@/hooks/redux/useAppDispatch';
 import { cursorPointDetection } from "@/utils/calendar";
 import { PopupPosition, Schedule } from '@/types/calendar';
-import { moveSchedule, stretchSchedule } from '@/redux/slices/scheduleSlice';
-import { ScheduleCell, ScheduleResizeHandler } from '../styles';
+import { moveSchedule } from '@/redux/slices/scheduleSlice';
+import { ScheduleCell, ScheduleResizeHandler, SubScheduleCell, TypoBox } from '../styles';
 
 interface calendarWeekBodyComponentProps {
   displayDate: Date; 
@@ -28,10 +29,13 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
   const [ editorOpen, setEditorOpen ] = useState<boolean>(false);
   const [ startTime, setStartTime ] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [scheduleID, setScheduleID] = useState<number | null>(null);
+  const [dayID, setDayID] = useState<number | null>(null);
   const [editorPosition, setEditorPosition] = useState<PopupPosition | null>(null);
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const editorPopupRef = useRef<HTMLDivElement | null>(null);
   const schedules = useAppSelector((state) => state.schedule.schedules);
+  const [scheduleMoveMode, setScheduleMoveMode] = useState<boolean>(false);
   const formatDate = (date: Date) => date.toLocaleDateString("en-CA");
   const editorClosedRef = useOutsideClickClose({
       ref: editorPopupRef,
@@ -51,8 +55,50 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
         resizing: false,
     }))
   ));
-  const pendingDispatchRef = useRef<{ dayIdx: number, scheduleIdx: number, startTime?: number, period?: number }[]>([]);
 
+  const handleMouseMove = (e: MouseEvent) => {
+    setSchedule((prev) =>
+      prev.map((daySchedules, dayIdx) =>
+        daySchedules.map((schedule, scheduleIdx) => {
+          if (!schedule.dragging && !schedule.resizing) return schedule;
+        
+          const parent = parentRefs.current[dayIdx];
+          if (!parent) return schedule;
+        
+          const rect = parent.getBoundingClientRect();
+          const y = e.clientY - rect.top;
+        
+          if (schedule.dragging) {
+            const newTop = Math.max(0, Math.min((BLOCK_COUNT - schedule.heightBlocks + 1) - 1, Math.round(y / BLOCK_HEIGHT)));
+            return { ...schedule, topIndex: newTop };
+          } else if (schedule.resizing) {
+            const newHeight = Math.max(
+              2,
+              Math.min(
+                (BLOCK_COUNT - schedule.heightBlocks + 1) - schedule.topIndex,
+                Math.round((y - schedule.topIndex * BLOCK_HEIGHT) / BLOCK_HEIGHT)
+              )
+            );
+            return { ...schedule, heightBlocks: newHeight };
+          }
+        
+          return schedule;
+        })
+      )
+    );
+  };
+  const handleMouseUp = () => {
+      setSchedule((prev) =>
+        prev.map((daySchedules) =>
+          daySchedules.map((schedule) => ({
+            ...schedule,
+            dragging: false,
+            resizing: false,
+          }))
+        )
+      );
+      setScheduleMoveMode(false);
+  };
   useEffect(() => {
     const newSchedule = Array.from({ length: 7 }, (_day, dayIndex) =>
       Array.from(
@@ -69,89 +115,28 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
         })
       )
     );
-
     setSchedule(newSchedule);
   }, [schedules, currentWeekDays]);
 
+  useEffect(() => {
+    if(selectedDate && scheduleID !== null && dayID !== null) {
+        dispatch(moveSchedule({ date: selectedDate, scheduleIndex: scheduleID, startTime: schedule[dayID][scheduleID].topIndex * 15, period: schedule[dayID][scheduleID].heightBlocks * 15}));
+    }
+  },[scheduleMoveMode]);
+
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-  setSchedule((prev) =>
-    prev.map((daySchedules, dayIdx) =>
-      daySchedules.map((schedule, scheduleIdx) => {
-        if (!schedule.dragging && !schedule.resizing) return schedule;
-
-        const parent = parentRefs.current[dayIdx];
-        if (!parent) return schedule;
-
-        const rect = parent.getBoundingClientRect();
-        const y = e.clientY - rect.top;
-
-        if (schedule.dragging) {
-          const newTop = Math.max(0, Math.min((BLOCK_COUNT - schedule.heightBlocks + 1) - 1, Math.round(y / BLOCK_HEIGHT)));
-
-          // Record pending dispatch
-          pendingDispatchRef.current.push({
-            dayIdx,
-            scheduleIdx,
-            startTime: newTop * 15,
-          });
-
-          return { ...schedule, topIndex: newTop };
-        } else if (schedule.resizing) {
-          const newHeight = Math.max(
-            1,
-            Math.min((BLOCK_COUNT - schedule.heightBlocks + 1) - schedule.topIndex,
-            Math.round((y - schedule.topIndex * BLOCK_HEIGHT) / BLOCK_HEIGHT))
-          );
-
-          pendingDispatchRef.current.push({
-            dayIdx,
-            scheduleIdx,
-            period: newHeight * 15,
-          });
-
-          return { ...schedule, heightBlocks: newHeight };
-        }
-
-        return schedule;
-      })
-    )
-  );
-};
-
-    const handleMouseUp = () => {
-      setSchedule((prev) =>
-        prev.map((daySchedules) =>
-          daySchedules.map((schedule) => ({
-            ...schedule,
-            dragging: false,
-            resizing: false,
-          }))
-        )
-      );
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
+    if(scheduleMoveMode) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    }
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, []);
+  }, [scheduleMoveMode]);
 
-  useEffect(() => {
-  for (const { dayIdx, scheduleIdx, startTime, period } of pendingDispatchRef.current) {
-    const date = formatDate(currentWeekDays[dayIdx]);
-    if (startTime !== undefined) {
-      dispatch(moveSchedule({ date, scheduleIndex: scheduleIdx, startTime }));
-    }
-    if (period !== undefined) {
-      dispatch(stretchSchedule({ date, scheduleIndex: scheduleIdx, period }));
-    }
-  }
-  pendingDispatchRef.current = []; // clear after dispatching
-});
+  
 
   return (
     <>
@@ -226,14 +211,7 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
               {schedule[dayIndex]?.map((oneSchedule, oneScheduleIdx) => (
                 <ScheduleCell
                   key={oneScheduleIdx}
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                    setSchedule((prev) => {
-                      const updated = [...prev];
-                      updated[dayIndex][oneScheduleIdx].dragging = true;
-                      return updated;
-                    })
-                  }}
+                  
                   // onClick={(e) => {
                   //   if (editorClosedRef.current) return; 
                   //   e.stopPropagation(); 
@@ -247,14 +225,37 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
                   topval = {oneSchedule.topIndex * BLOCK_HEIGHT}
                   heightval = {oneSchedule.heightBlocks * BLOCK_HEIGHT}
                   cursorval = {oneSchedule.dragging ? "grabbing" : "grab"}
+                > 
+                <SubScheduleCell 
+                  onMouseDown={(e) =>{
+                      e.stopPropagation(); 
+                      setSelectedDate(dateString); 
+                      setScheduleID(oneScheduleIdx);
+                      setDayID(dayIndex);
+                      setScheduleMoveMode(true);
+                      setSchedule((prev) => {
+                      const updated = [...prev];
+                      updated[dayIndex][oneScheduleIdx].dragging = true;
+                      return updated;
+                    })
+                  }}
                 >
-                  {/* <div style={{textAlign:'center'}}>
-                    {daySchedules?.[oneScheduleIdx]?.title}
-                  </div> */}
+                    <TypoBox>
+                       {`${Math.floor(daySchedules?.[oneScheduleIdx]?.startTime / 60)}.${pad(daySchedules?.[oneScheduleIdx]?.startTime % 60)} 
+                        - ${Math.floor(daySchedules?.[oneScheduleIdx]?.endTime / 60)}.${pad(daySchedules?.[oneScheduleIdx]?.endTime % 60)}`}
+                       {" "}
+                       {daySchedules?.[oneScheduleIdx]?.title} 
+                    </TypoBox>
+                </SubScheduleCell>
+                  
                   {/* Resize handle */}
                   <ScheduleResizeHandler
                     onMouseDown={(e) => {
+                      setSelectedDate(dateString); 
+                      setScheduleID(oneScheduleIdx);
+                      setDayID(dayIndex);
                       e.stopPropagation();
+                      setScheduleMoveMode(true);
                       setSchedule((prev) => {
                         const updated = [...prev];
                         updated[dayIndex][oneScheduleIdx].resizing = true;

@@ -28,12 +28,11 @@ export const StyledButton = styled.button<{ variant?: 'calenderHeaderWeekMonth' 
   ${(props) =>
     props.variant === 'datePicker' &&
     css`
-      padding: 10px 10px;
       background-color:  ${props.activestate === 'active' ? 'gray' : 'white'};;
       color: black;
       font-weight: bold;
       margin-left: 5px;
-      font-size:70%;
+      font-size:120%;
       width: 50%;
       margin: auto;
     `}
