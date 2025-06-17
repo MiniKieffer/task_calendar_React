@@ -44,9 +44,9 @@ const EventEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refProp'>
     const [style, setStyle] = useState(initialData?.event_style || []);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [datePickerOpen, setDatePickerOpen] = useState(false);
-    const [year, setYear] = useState(new Date(dateString).getFullYear());
-    const [month, setMonth] = useState(new Date(dateString).getMonth());
-    const [date, setDate] = useState(new Date(dateString).getDate() + 1);
+    const [year, setYear] = useState<number>(0);
+    const [month, setMonth] = useState<number>(0);
+    const [date, setDate] = useState<number>(0);
 
     const toggleValue = (value: string) => {
       setStyle(prev =>
@@ -57,16 +57,16 @@ const EventEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refProp'>
 
     const formatDate = (date: Date) => date.toLocaleDateString("en-CA");
 
-    // useEffect(() => {
-    //   setYear(displayDate.getFullYear());
-    //   setMonth(displayDate.getMonth());
-    //   setDate(displayDate.getDate());
-    //   console.log(date);
-    // },[displayDate]);
+    useEffect(() => {
+      const [year, month, day] = dateString.split("-").map(Number);
+      setYear(year);
+      setMonth(month);
+      setDate(day);
+    },[]);
     
     const handleSave = (e: React.FormEvent) => {
       e.preventDefault(); // prevent form submission reload
-      const fullDate = new Date(year, month, date);
+      const fullDate = new Date(year, month - 1, date);
       let eventData: EventData;
       if (initialData) {
         eventData = {
@@ -99,7 +99,7 @@ const EventEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refProp'>
         $varient="editor"
         ref={ref} 
       >
-        <CustomButton variant='datePicker' onClick={() => setDatePickerOpen(!datePickerOpen)}>{`${year}-${month + 1}-${date}`}</CustomButton>
+        <CustomButton variant='datePicker' onClick={() => setDatePickerOpen(!datePickerOpen)}>{`${year}-${month}-${date}`}</CustomButton>
         {datePickerOpen && 
           <DatePicker  
             year={year}

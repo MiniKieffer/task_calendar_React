@@ -261,5 +261,7 @@ export const TypoBox = styled.div`
        user-select: none;
        color: white;
        font-size: 12px;
+       overflow: hidden;
        white-space: nowrap;
+       text-overflow: ellipsis;
 `;

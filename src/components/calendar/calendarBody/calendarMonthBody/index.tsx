@@ -32,15 +32,15 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate, dire
   const editorPopupRef = useRef<HTMLDivElement | null>(null);
   const listPopupRef = useRef<HTMLDivElement | null>(null);
 
-  const editorClosedRef = useOutsideClickClose({
+  const { justClosed: editorClosed } = useOutsideClickClose({
     ref: editorPopupRef,
     onClose: () => {
       setSelectedDate(null);
       setEditingEvent(null);
-      setListPopupOpenMode(false);
+      setEditorPopupOpenMode(false);
     },
   });
-  const listClosedRef = useOutsideClickClose({
+  const { justClosed: listClosed } = useOutsideClickClose({
     ref: listPopupRef,
     onClose: () => {
       setListDate(null);
@@ -72,7 +72,7 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate, dire
       )}
       {listDate && listPosition && listPopupOpenMode && (
         <DailyEventListModal
-          handleCellClick = {(e) => { if(editorClosedRef.current || listClosedRef.current) return; 
+          handleCellClick = {(e) => { if(editorClosed || listClosed) return; 
                                       setEditorPosition(cursorPointDetection(e)); setSelectedDate(listDate);
                             }}
           onClose={() => {
@@ -105,19 +105,18 @@ const CalendarMonthBody: React.FC<CalendarMonthBodyProps> = ({ displayDate, dire
               label = {label}
               rownum = {totalRows}
               handleCellClick = {(e: React.MouseEvent) => {
-                                requestAnimationFrame(() => {
-                                  if (editorClosedRef.current) return;
                                   setEditorPosition(cursorPointDetection(e));
                                   setSelectedDate(dateString);
-                                });
                               }}
               events = {events}
               setEditingEvent = {setEditingEvent}
               setListPopupOpenMode = {setListPopupOpenMode}
               setEditorPopupOpenMode = {setEditorPopupOpenMode}
-              handleListClick = {(e) => { if(editorClosedRef.current || listClosedRef.current) return; setListPosition(cursorPointDetection(e)); setListDate(dateString); }}
+              handleListClick = {(e) => { setListPosition(cursorPointDetection(e)); setListDate(dateString); }}
               dateString = {dateString}
               cardNum = {`${events?.[dateString]?.length || ""} ${(events?.[dateString]?.length || 0) === 1 ? "card" : (events?.[dateString]?.length || 0) === 0 ? "" : "cards"}`}
+              listCloseMode = {listClosed}
+              editorCloseMode = {editorClosed}
             />
           );
         })}

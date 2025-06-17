@@ -62,21 +62,22 @@ export const SearchResultContainer = styled.div`
     text-align: center;
 `
 export const SearchResultSubSelector = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 11px;
-  background: #f8f8f8;
-  padding: 3px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  &:hover {
-    background-color: gray;
-  }
-
-  &:active {
-    transform: scale(0.97);
-    background-color: gray;
-  }
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    background: #f8f8f8;
+    padding: 3px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    &:hover {
+      background-color: gray;
+    }
+    
+    &:active {
+      transform: scale(0.97);
+      background-color: gray;
+    }
 `;
 
 export const CountryContainer = styled.div`

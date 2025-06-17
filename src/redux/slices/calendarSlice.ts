@@ -12,7 +12,6 @@ const calendarSlice = createSlice({
   reducers: {
     addEvent: (state, action: PayloadAction<EventData>) => {
       const { id, date } = action.payload;
-      console.log(id);
       if (!state.events[date]) state.events[date] = [];
       state.events[date].push(action.payload);
     },

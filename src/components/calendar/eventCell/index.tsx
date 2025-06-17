@@ -19,7 +19,9 @@ interface EventCellProps {
     setEditorPopupOpenMode: (editorPopupOpenMode: boolean) => void,
     handleListClick: (e: React.MouseEvent) => void,
     dateString: string,
-    cardNum: string
+    cardNum: string,
+    listCloseMode: boolean,
+    editorCloseMode: boolean
 }
 
 const EventCell: React.FC<EventCellProps> = ({
@@ -33,7 +35,9 @@ const EventCell: React.FC<EventCellProps> = ({
                                                 setEditorPopupOpenMode, 
                                                 handleListClick, 
                                                 dateString,
-                                                cardNum
+                                                cardNum,
+                                                listCloseMode,
+                                                editorCloseMode
                                             }) => {
     const dateEvents = events[dateString] || [];
     const dispatch = useAppDispatch();
@@ -44,7 +48,7 @@ const EventCell: React.FC<EventCellProps> = ({
         key={dateString}
         variant={variant}
         rownum={rownum}
-        onClick={(e) => {handleCellClick(e); setEditorPopupOpenMode(true);} }
+        onClick={(e) => {if(editorCloseMode || listCloseMode) return; handleCellClick(e); setEditorPopupOpenMode(true);} }
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           const data = JSON.parse(e.dataTransfer.getData("text/plain"));
@@ -63,6 +67,7 @@ const EventCell: React.FC<EventCellProps> = ({
               index={index}
               dateString={dateString}
               onClick={(event, e) => {
+                if(editorCloseMode || listCloseMode) return;
                 e.stopPropagation();
                 handleCellClick(e);
                 setEditingEvent(event);
@@ -71,7 +76,7 @@ const EventCell: React.FC<EventCellProps> = ({
             />
         ))}
         {dateEvents.length > 2 && (
-          <EventWrapper onClick={(e) => {handleListClick(e); setListPopupOpenMode(true); e.stopPropagation();}}>
+          <EventWrapper onClick={(e) => {if(editorCloseMode || listCloseMode) return; handleListClick(e); setListPopupOpenMode(true); e.stopPropagation();}}>
              +{dateEvents.length - 2} more
           </EventWrapper>
         )}

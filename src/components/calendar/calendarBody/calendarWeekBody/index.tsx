@@ -37,7 +37,7 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
   const schedules = useAppSelector((state) => state.schedule.schedules);
   const [scheduleMoveMode, setScheduleMoveMode] = useState<boolean>(false);
   const formatDate = (date: Date) => date.toLocaleDateString("en-CA");
-  const editorClosedRef = useOutsideClickClose({
+  const {justClosedRef: editorClosedRef} = useOutsideClickClose({
       ref: editorPopupRef,
       onClose: () => {
         setSelectedDate(null);
@@ -136,8 +136,6 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
     };
   }, [scheduleMoveMode]);
 
-  
-
   return (
     <>
       <CalendarGridContainer variant="calendarWeekDayBar">
@@ -212,15 +210,15 @@ const CalendarWeekBody: React.FC<calendarWeekBodyComponentProps> = ({ displayDat
                 <ScheduleCell
                   key={oneScheduleIdx}
                   
-                  // onClick={(e) => {
-                  //   if (editorClosedRef.current) return; 
-                  //   e.stopPropagation(); 
-                  //   setEditorOpen(true); 
-                  //   setSelectedDate(dateString); 
-                  //   setEditorPosition(cursorPointDetection(e));
-                  //   setStartTime(oneSchedule.topIndex * 15);
-                  //   setEditingSchedule(daySchedules[oneScheduleIdx]);
-                  // }}
+                  onClick={(e) => {
+                    if (editorClosedRef.current) return; 
+                    e.stopPropagation(); 
+                    setEditorOpen(true); 
+                    setSelectedDate(dateString); 
+                    setEditorPosition(cursorPointDetection(e));
+                    setStartTime(oneSchedule.topIndex * 15);
+                    setEditingSchedule(daySchedules[oneScheduleIdx]);
+                  }}
                   marginval = {oneScheduleIdx}
                   topval = {oneSchedule.topIndex * BLOCK_HEIGHT}
                   heightval = {oneSchedule.heightBlocks * BLOCK_HEIGHT}

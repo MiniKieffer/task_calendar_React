@@ -33,17 +33,24 @@ const ScheduleEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refPro
     const [desc, setDesc] = useState(initialData?.desc || "");
     const [datePickerOpen, setDatePickerOpen] = useState(false);
     const [timePickerOpen, setTimePickerOpen] = useState(false);
-    const [year, setYear] = useState(new Date(dateString).getFullYear());
-    const [month, setMonth] = useState(new Date(dateString).getMonth());
-    const [date, setDate] = useState(new Date(dateString).getDate() + 1);
+    const [year, setYear] = useState(0);
+    const [month, setMonth] = useState(0);
+    const [date, setDate] = useState(0);
     const [startTime, setStartTime] = useState(startTimer);
     const [endTime, setEndTime] = useState(startTimer/60 < 23 ? startTimer + 60 : 24 * 60);
 
     const formatDate = (date: Date) => date.toLocaleDateString("en-CA");
+
+    useEffect(() => {
+      const [year, month, day] = dateString.split("-").map(Number);
+      setYear(year);
+      setMonth(month);
+      setDate(day);
+    },[]);
     
     const handleSave = (e: React.FormEvent) => {
       e.preventDefault(); // prevent form submission reload
-      const fullDate = new Date(year, month, date);
+      const fullDate = new Date(year, month - 1, date);
       let schedule: Schedule;
       if (initialData) {
         schedule = {
@@ -80,7 +87,7 @@ const ScheduleEditor = forwardRef<HTMLDivElement, Omit<EventEditorProps, 'refPro
         $varient="editor"
         ref={ref} 
       >
-        <CustomButton variant='datePicker' onClick={() => setDatePickerOpen(!datePickerOpen)}>{`${year}-${month + 1}-${date}`}</CustomButton>
+        <CustomButton variant='datePicker' onClick={() => setDatePickerOpen(!datePickerOpen)}>{`${year}-${month}-${date}`}</CustomButton>
         {
             datePickerOpen && 
             <DatePicker  

@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const TimePickerContainer = styled.div`
     width:50%;
-    top: 36%;
+    top: 30%;
     left: 25%;
     background: #fff;
     position: absolute;

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState  } from "react";
 
 type UseOutsideClickCloseParams = {
   ref: React.RefObject<HTMLElement | null>;
@@ -6,16 +6,19 @@ type UseOutsideClickCloseParams = {
   delay?: number;
 };
 
-export function useOutsideClickClose({ ref, onClose, delay = 100 }: UseOutsideClickCloseParams) {
+export function useOutsideClickClose({ ref, onClose, delay = 200 }: UseOutsideClickCloseParams) {
   const justClosedRef = useRef(false);
+  const [justClosed, setJustClosed] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         onClose();
         justClosedRef.current = true;
+        setJustClosed(true);
         setTimeout(() => {
           justClosedRef.current = false;
+          setJustClosed(false);
         }, delay);
       }
     };
@@ -25,5 +28,5 @@ export function useOutsideClickClose({ ref, onClose, delay = 100 }: UseOutsideCl
     };
   }, [ref, onClose, delay]);
 
-  return justClosedRef;
+  return { justClosedRef, justClosed };
 }
