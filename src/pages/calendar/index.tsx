@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CalendarHeader from '../../components/calendar/calendarHeader';
 import CalendarBody from '../../components/calendar/calendarBody';
-// import { useAutoTodayUpdater } from "@/hooks/calendar/useAutoTodayUpdater";
 import { CalendarContainer } from './styles';
 import { Mode, Direction } from "@/types/calendar";
 import { useAppDispatch } from "@/hooks/redux/useAppDispatch";
@@ -15,8 +14,7 @@ const CalenderPage: React.FC = () => {
   const [countryCode, setCountryCode] = useState<string | undefined>('SE');
   const dispatch = useAppDispatch();
 
-  // useAutoTodayUpdater(() => setDisplayDate(new Date()), displayDate);
-  // Reset calendar date according to month change event
+  // manage the displayDate across calendar
   useEffect(() => {
     const newDate = new Date(displayDate);
     const today = new Date();
